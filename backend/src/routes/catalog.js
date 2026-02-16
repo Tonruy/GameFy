@@ -1,0 +1,3 @@
+// GET /genres
+
+// GET /platforms
