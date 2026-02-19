@@ -1,5 +1,7 @@
 const { executeIgdbQuery } = require('./igdb');
-// We are going to stablish the data needed in every function and then execute the Query
+// We are going to stablish the data needed in every function and then we execute the Query
+
+const { mapGameCard, mapGameDetail } = require('../utils/gamesMapper');
 
 const getTrendingGamesService = async () => {
   const igdbQuery = `
@@ -12,7 +14,16 @@ const getTrendingGamesService = async () => {
     limit 20;
   `;
 
-  return await executeIgdbQuery(igdbQuery);
+  const igdbGames = await executeIgdbQuery('games', igdbQuery);
+
+  const gamesList = [];
+  if (igdbGames && Array.isArray(igdbGames)) {
+    igdbGames.forEach((igdbGame) => {
+      gamesList.push(mapGameCard(igdbGame));
+    });
+  }
+
+  return gamesList;
 };
 
 const searchGameService = async (searchQuery) => {
@@ -26,7 +37,16 @@ const searchGameService = async (searchQuery) => {
     limit 20;
   `;
 
-  return await executeIgdbQuery(igdbQuery);
+  const igdbGames = await executeIgdbQuery('games', igdbQuery);
+
+  const gamesList = [];
+  if (igdbGames && Array.isArray(igdbGames)) {
+    igdbGames.forEach((igdbGame) => {
+      gamesList.push(mapGameCard(igdbGame));
+    });
+  }
+
+  return gamesList;
 };
 
 //All the fields we are gonna use in Game Page
@@ -48,7 +68,15 @@ const getGameByIdService = async (gameId) => {
     limit 1;
   `;
 
-  return await executeIgdbQuery(igdbQuery);
+  const igdbGames = await executeIgdbQuery('games', igdbQuery);
+
+  // Important for not error in case the array is empty
+  if (!igdbGames || !Array.isArray(igdbGames) || igdbGames.length === 0) {
+    return null;
+  }
+
+  const gameDetail = mapGameDetail(igdbGames[0]);
+  return gameDetail;
 };
 
 //
@@ -65,9 +93,17 @@ const getNewGamesService = async () => {
     limit 20;
   `;
 
-  return await executeIgdbQuery(igdbQuery);
-};
+  const igdbGames = await executeIgdbQuery('games', igdbQuery);
 
+  const gamesList = [];
+  if (igdbGames && Array.isArray(igdbGames)) {
+    igdbGames.forEach((igdbGame) => {
+      gamesList.push(mapGameCard(igdbGame));
+    });
+  }
+
+  return gamesList;
+};
 
 const getGameMediaService = async (gameId) => {
   const igdbQuery = `
@@ -79,19 +115,32 @@ const getGameMediaService = async (gameId) => {
     limit 1;
   `;
 
-  const mediaResponse = await executeIgdbQuery(igdbQuery);
-  return mediaResponse;
+  const mediaResponse = await executeIgdbQuery('games', igdbQuery);
+
+  // Important for not error in case the array is empty
+  if (!mediaResponse || !Array.isArray(mediaResponse) || mediaResponse.length === 0) {
+    return null;
+  }
+
+  const mediaDetail = mapGameDetail(mediaResponse[0]);
+
+  return {
+    gameId: mediaDetail.gameId,
+    coverUrl: mediaDetail.coverUrl,
+    screenshotsUrls: mediaDetail.screenshotsUrls,
+    videoIds: mediaDetail.videoIds
+  };
 };
 
 const getSimilarGamesService = async (gameId) => {
   // gameResponse is an array type Number
-  const gameResponse = await executeIgdbQuery(`
+  const gameResponse = await executeIgdbQuery('games', `
     fields similar_games;
     where id = ${gameId};
     limit 1;
   `);
     // Important for not error in case the array is empty
-  if (!gameResponse || gameResponse.length === 0) {
+  if (!gameResponse || !Array.isArray(gameResponse) || gameResponse.length === 0) {
     return [];
   }
 
@@ -101,7 +150,7 @@ const getSimilarGamesService = async (gameId) => {
     return [];
   }
 
-  // IMPORTANT: we need a string, not numbers so we make de join with ','
+  // IMPORTANT: we need a string, not numbers so we make  join with ',' and converting in array
   const similarGamesQuery = `
     fields 
       name, 
@@ -112,9 +161,17 @@ const getSimilarGamesService = async (gameId) => {
     limit 20;
   `;
   // We make a second query for obtaining the data of those games
-  return await executeIgdbQuery(similarGamesQuery);
-};
+  const igdbGames = await executeIgdbQuery('games', similarGamesQuery);
 
+  const gamesList = [];
+  if (igdbGames && Array.isArray(igdbGames)) {
+    igdbGames.forEach((igdbGame) => {
+      gamesList.push(mapGameCard(igdbGame));
+    });
+  }
+
+  return gamesList;
+};
 
 module.exports = {
   getTrendingGamesService,

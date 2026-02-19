@@ -1,6 +1,7 @@
 const express = require('express');
 
 const gamesRouter = require('./routes/games');
+const catalogRouter = require('./routes/catalog');
 
 const app = express();
 
@@ -14,5 +15,9 @@ app.get('/health', (req, res) => {
 
 // Games routes
 app.use('/api/games', gamesRouter);
+// Catalog (genres,platform)
+app.use('/api/catalog', catalogRouter);
+
+
 
 module.exports = app;

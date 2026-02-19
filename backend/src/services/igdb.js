@@ -1,3 +1,6 @@
+
+
+// Token from Amazon/Twitch :
 const getTwitchAccessToken = async () => {
   try {
     const response = await fetch(
@@ -10,28 +13,29 @@ const getTwitchAccessToken = async () => {
     const tokenData = await response.json();
 
     if (!response.ok) {
-      console.error('Error obteniendo token de Twitch:', tokenData);
+      console.error('Error obtaining Twitch token:', tokenData);
       return null;
     }
 
     return tokenData.access_token;
 
   } catch (error) {
-    console.error('Error conectando con Twitch:', error.message);
+    console.error('Error making the connection with Twitch', error.message);
     return null;
   }
 };
 
-const executeIgdbQuery = async (queryBody) => {
+const executeIgdbQuery = async (endpoint, queryBody) => {
   try {
     const accessToken = await getTwitchAccessToken();
-
+    
     if (!accessToken) {
-      console.error('No se pudo obtener access token');
+      console.error('Could not get access token');
       return [];
     }
-
-    const response = await fetch(process.env.IGDB_BASE_URL, {
+    
+    // Dinamic endpoint depending on what is searching (genres, platform...)
+    const response = await fetch(`${process.env.IGDB_BASE_URL}/${endpoint}`, {
       method: 'POST',
       headers: {
         'Client-ID': process.env.TWITCH_CLIENT_ID,
@@ -44,14 +48,14 @@ const executeIgdbQuery = async (queryBody) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Error en consulta IGDB:', data);
+      console.error('Error consulting IGDB:', data);
       return [];
     }
 
     return data;
 
   } catch (error) {
-    console.error('Error ejecutando query IGDB:', error.message);
+    console.error('Error executing query on IGDB:', error.message);
     return [];
   }
 };
@@ -60,3 +64,4 @@ module.exports = {
   getTwitchAccessToken,
   executeIgdbQuery
 };
+
