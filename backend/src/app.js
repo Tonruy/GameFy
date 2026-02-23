@@ -2,6 +2,8 @@ const express = require('express');
 
 const gamesRouter = require('./routes/games');
 const catalogRouter = require('./routes/catalog');
+const authRouter = require('./routes/auth');
+const usersRouter = require('./routes/users');
 
 const app = express();
 
@@ -17,6 +19,8 @@ app.get('/health', (req, res) => {
 app.use('/api/games', gamesRouter);
 // Catalog (genres,platform)
 app.use('/api/catalog', catalogRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/users', usersRouter);
 
 
 

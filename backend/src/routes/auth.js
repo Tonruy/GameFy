@@ -1,14 +1,30 @@
 // routes/auth.js → base /api/auth
+//
+// Public (no middleware):
+// POST /register
+// POST /login
+// POST /refresh
+//
+// Protected (optional):
+// POST /logout (client-side logout is enough; server-side requires refresh persistence)
+//
+// NOTE: Spanish comments below are kept because existing comments must not be removed.
 
-// Públicos (sin middleware):
+const express = require('express');
+const router = express.Router();
+
+const { register, login, refresh } = require('../controllers/auth');
 
 // POST /register
+router.post('/register', register);
 
 // POST /login
+router.post('/login', login);
 
-// POST /recover-password (si lo tienes)
+// POST /refresh
+router.post('/refresh', refresh);
 
-// POST /refresh ✅ (este NO necesita authToken si el refresh se manda en body; se valida en services/token.js)
+module.exports = router;
 
 // Protegido (opcional):
 
