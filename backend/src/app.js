@@ -19,7 +19,9 @@ app.get('/health', (req, res) => {
 app.use('/api/games', gamesRouter);
 // Catalog (genres,platform)
 app.use('/api/catalog', catalogRouter);
+// Login/Register/Refresh
 app.use('/api/auth', authRouter);
+// User actions
 app.use('/api/users', usersRouter);
 
 

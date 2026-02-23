@@ -37,7 +37,7 @@ const getMe = async (req, res) => {
   try {
     const payload = req.payload;
 
-    const user = await User.findById(payload.userId).select('-password');
+    const user = await User.findById(payload.userId).select('-password'); // Everything but password '-password'
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

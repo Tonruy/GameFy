@@ -13,21 +13,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      trim: true
+      trim: true,
+      minLength: 3
     },
     password: {
       type: String,
-      required: true
+      required: true,
+      minLength: 8
     },
     role: {
       type: String,
       enum: ['user', 'admin'],
       default: 'user'
     },
-
-    // Profile (optional fields)
-    avatarUrl: { type: String, default: '' },
-    bio: { type: String, default: '' },
 
     steam: {
       isLinked: { type: Boolean, default: false },

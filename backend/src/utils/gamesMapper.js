@@ -18,9 +18,10 @@ const buildIgdbImgUrl = (imagePath) => {
 	return imagePath; //Without // at starts
 }
 
-// Checking if the parameter exists before getting it because sometimes some games don't cover/rating/total_rating_count
+// Checking if the parameter exists before getting it because sometimes some games don't; cover/rating/total_rating_count. BASE GAME / list view
 const mappedGame = (igdbGame) => {
   let coverUrl = null;
+  // Double check. First just cover, in case it exists we can get url. If we dont, it gives error (undefined) and sometimes there is not cover in the object (Object inside an object)
   if (igdbGame.cover && igdbGame.cover.url) {
     coverUrl = buildIgdbImgUrl(igdbGame.cover.url);
   }
@@ -71,7 +72,8 @@ const mapGameDetail = (igdbGame) => {
     firstReleaseDate = igdbGame.first_release_date;
   }
 
-	// We need to confirm is an array because if its not, it gets bugged
+	// We need to confirm is an array because if its not, it gets bugged.
+  // When working with external APIs we can't be sure what the response is so is best practices to check the result (Array.isArray)
   const screenshotsUrls = [];
   if (igdbGame.screenshots && Array.isArray(igdbGame.screenshots)) {
     igdbGame.screenshots.forEach((screenshot) => {

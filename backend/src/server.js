@@ -16,6 +16,7 @@ connectToDataBase().then(() => {
     console.log(`Servidor ejecutandose en en http://localhost:${PORT}`);
   });
 
-
+// Need Twitch Token after running the server for using IGDB
+// Without it, every route fails
 getTwitchAccessToken();
 });

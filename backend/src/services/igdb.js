@@ -1,6 +1,8 @@
 
 
-// Token from Amazon/Twitch :
+// Token from Amazon/Twitch OAuth :
+// OAuth 2.0 grant_type=client_credentials used when its an app and not an user. 
+// Backend <-> Backend
 const getTwitchAccessToken = async () => {
   try {
     const response = await fetch(
@@ -10,14 +12,14 @@ const getTwitchAccessToken = async () => {
       }
     );
 
-    const tokenData = await response.json();
+    const tokenData = await response.json();  
 
     if (!response.ok) {
       console.error('Error obtaining Twitch token:', tokenData);
       return null;
     }
 
-    return tokenData.access_token;
+    return tokenData.access_token; // -> IGDB Client-ID
 
   } catch (error) {
     console.error('Error making the connection with Twitch', error.message);
@@ -25,6 +27,7 @@ const getTwitchAccessToken = async () => {
   }
 };
 
+// Using in a lot of functions so its best practices to separate the query and call it in the functions needed
 const executeIgdbQuery = async (endpoint, queryBody) => {
   try {
     const accessToken = await getTwitchAccessToken();
