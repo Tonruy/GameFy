@@ -1,15 +1,38 @@
-// routes/users.js → base /api/users
+const express = require('express');
+const verifyToken = require('../middlewares/authToken');
+const roleCheck = require('../middlewares/roleCheck');
+const router = express.Router();
 
-// Protegidos con access token (middleware authToken.js):
 
-// GET /me → devuelve info del usuario logueado
+const {
+  getMe,
+  updateMe,
+  getUserById,
+  getUsersList,
+  getMyFavorites,
+  addFavorite,
+  removeFavorite,
+  getMyWishlist,
+  addWishlist,
+  removeWishlist
+} = require('../controllers/users');
 
-// PATCH /me (opcional) → editar perfil
+// Protected (access token -> user profile)
+router.get('/me', verifyToken, getMe);
+router.patch('/me', verifyToken, updateMe);
 
-// Solo admin (authToken + roleCheck):
+// Favorites
+router.get('/me/favorites', verifyToken, getMyFavorites);
+router.post('/me/favorites/:gameId', verifyToken, addFavorite);
+router.delete('/me/favorites/:gameId', verifyToken, removeFavorite);
 
-// GET /:id (opcional)
+// Wishlist
+router.get('/me/wishlist', verifyToken, getMyWishlist);
+router.post('/me/wishlist/:gameId', verifyToken, addWishlist);
+router.delete('/me/wishlist/:gameId', verifyToken, removeWishlist);
 
-// GET / (opcional list users)
+// Admin only
+router.get('/:id', verifyToken, roleCheck, getUserById);
+router.get('/', verifyToken, roleCheck, getUsersList);
 
-// 👉 Aquí sí se usa roleCheck.js si hay endpoints admin.
+module.exports = router;

@@ -1,6 +1,5 @@
-const { executeIgdbQuery } = require('./igdb');
 // We are going to stablish the data needed in every function and then we execute the Query
-
+const { executeIgdbQuery } = require('./igdb');
 const { mapGameCard, mapGameDetail } = require('../utils/gamesMapper');
 
 const getTrendingGamesService = async () => {
@@ -17,6 +16,7 @@ const getTrendingGamesService = async () => {
   const igdbGames = await executeIgdbQuery('games', igdbQuery);
 
   const gamesList = [];
+  // Again checking is an array because it is an external API
   if (igdbGames && Array.isArray(igdbGames)) {
     igdbGames.forEach((igdbGame) => {
       gamesList.push(mapGameCard(igdbGame));
@@ -26,10 +26,12 @@ const getTrendingGamesService = async () => {
   return gamesList;
 };
 
+// Determinating the fields needed for the game card and not searching by ID, its faster (no fetchs that we don't need)
 const searchGameService = async (searchQuery) => {
   const igdbQuery = `
     search "${searchQuery}";
-    fields 
+    fields
+      id,
       name, 
       rating, 
       total_rating_count, 
@@ -70,16 +72,16 @@ const getGameByIdService = async (gameId) => {
 
   const igdbGames = await executeIgdbQuery('games', igdbQuery);
 
-  // Important for not error in case the array is empty
+  // Important for not error in case the array is empty (In that case, undefined)
   if (!igdbGames || !Array.isArray(igdbGames) || igdbGames.length === 0) {
     return null;
   }
-
+  // IGDB gives an array with an object, even when the limit is set 1, we need to get the position [0]
   const gameDetail = mapGameDetail(igdbGames[0]);
   return gameDetail;
 };
 
-//
+
 const getNewGamesService = async () => {
   const igdbQuery = `
     fields 
@@ -105,6 +107,7 @@ const getNewGamesService = async () => {
   return gamesList;
 };
 
+// Best Practices : separating the media and calling it in the functions we need because is overfetching. Media is a big-data array and not needed in every fetch
 const getGameMediaService = async (gameId) => {
   const igdbQuery = `
     fields 
