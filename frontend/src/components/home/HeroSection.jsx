@@ -1,0 +1,63 @@
+import { useEffect, useState } from "react";
+
+const HeroSection = ({ games }) => {
+	// Initial states for games showed in Hero (I dont want the same order than trending)
+	const [order, setOrder] = useState([]);
+	const [position, setPosition] = useState(0);
+
+	// Shuffle Fisher-Yates
+	const shuffle = (array) => {
+		for (let i = array.length - 1; i > 0; i--) {
+			const random = Math.floor(Math.random() * (i + 1));
+
+			[array[i], array[random]] = [array[random], array[i]];
+		}
+		return array;
+	};
+
+	//Shuffle order and set position
+	useEffect(() => {
+		if (!games.length) {
+			return;
+		}
+
+		// Array.from(array.like , function(value, index)) -> _ means: don't use the value
+		const indexes = Array.from({ length: games.length }, (_, i) => i);
+		const shuffled = shuffle(indexes);
+
+		setOrder(shuffled);
+		setPosition(0);
+	}, [games]);
+
+	//Timer 
+	useEffect(() => {
+		if (!order.length) {
+			return;
+		}
+
+		const timer = setInterval(() => {
+			//setState -> saves the initial position (0) and update its with +1 (the next position)
+			setPosition((previousPosition) => {
+				return (previousPosition + 1) % order.length; // When order is 0 it starts again
+			});
+		}, 6000);
+
+		return () => {
+			clearInterval(timer);
+		};
+	}, [order]);
+
+
+	if (!games.length || !order.length) {
+		return null;
+	}
+
+	return (
+		<div>
+			<h2>HERO SECTION</h2>
+			{games[order[position]].name}
+		</div>
+	);
+};
+
+export default HeroSection;
