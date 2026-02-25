@@ -1,0 +1,50 @@
+import { useEffect, useState } from "react";
+import { getDiscoverGames, getIncomingGames, getNewGames, getTopRatedGames, getTrendingGames } from "../api/gamesApi";
+
+export const useHomeData = () => {
+  const [trendingGames, setTrendingGames] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [newGames, setNewGames] = useState([]);
+  const [topRatedGames, setTopRatedGames] = useState([]);
+  const [discoverGames, setDiscoverGames] = useState([]);
+  const [incomingGames, setIncomingGames] = useState([]);
+
+  useEffect(() => {
+    const fetchGames = async () => {
+      try {
+        // Promise.all runs every function at the same time -> answer: array of promises
+        const [trendingData, incomingData, newGamesData, topRatedData, discoverGames] = await Promise.all([
+          getTrendingGames(),
+          getIncomingGames(),
+          getNewGames(),
+          getTopRatedGames(),
+          getDiscoverGames()
+        ]);
+
+        setTrendingGames(trendingData);
+        setIncomingGames(incomingData);
+        setNewGames(newGamesData);
+        setTopRatedGames(topRatedData);
+        setDiscoverGames(discoverGames);
+
+      } catch (error) {
+        setErrorMessage(error.message);
+      } finally { //UX -> Used for message "Loading..." on screen whatever the answer  is
+        setIsLoading(false);
+      }
+    };
+
+    fetchGames();
+  }, []);
+
+  return {
+    trendingGames,
+    incomingGames,
+    newGames,
+    topRatedGames,
+    isLoading,
+    errorMessage,
+    discoverGames
+  };
+};

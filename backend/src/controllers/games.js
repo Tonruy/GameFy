@@ -1,10 +1,13 @@
 const {
   getTrendingGamesService,
+  getIncomingGamesService,
   searchGameService,
   getGameByIdService,
   getNewGamesService,
   getGameMediaService,
-  getSimilarGamesService
+  getSimilarGamesService,
+  getTopRatedGamesService,
+  getDiscoverGamesService
 } = require('../services/games');
 
 const getTrendingGames = async (req, res) => {
@@ -16,6 +19,37 @@ const getTrendingGames = async (req, res) => {
     res.status(500).json({ message: 'Error obtaining trending games' });
   }
 };
+
+const getIncomingGames = async (req, res) => {
+  try {
+    const incomingGames = await getIncomingGamesService();
+    res.status(200).json(incomingGames);
+  } catch (error) {
+    console.error('Error in getIncomingGames:', error.message);
+    res.status(500).json({ message: 'Error obtaining incoming games' });
+  }
+};
+const getTopRatedGames = async (req, res) => {
+  try {
+    const topRatedGames = await getTopRatedGamesService();
+    res.status(200).json(topRatedGames);
+  } catch (error) {
+    console.error('Error in getTopRatedGames:', error.message);
+    res.status(500).json({ message: 'Error obtaining top rated games' });
+  }
+}
+
+const getDiscoverGames = async (req, res) => {
+  try {
+    const discoverGames = await getDiscoverGamesService();
+    res.status(200).json(discoverGames);
+  } catch (error) {
+    console.error('Error in getDiscoverGames:', error.message);
+    res.status(500).json({ message: 'Error obtaining discovering games' });
+  }
+}
+
+
 
 const searchGame = async (req, res) => {
   try {
@@ -95,11 +129,16 @@ const getSimilarGames = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   getTrendingGames,
+  getIncomingGames,
   searchGame,
   getGameById,
   getNewGames,
   getGameMedia,
-  getSimilarGames
+  getSimilarGames,
+  getTopRatedGames,
+  getDiscoverGames
 };

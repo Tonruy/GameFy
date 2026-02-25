@@ -51,7 +51,6 @@ const executeIgdbQuery = async (endpoint, queryBody) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Error consulting IGDB:', data);
       return [];
     }
 

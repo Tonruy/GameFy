@@ -1,35 +1,28 @@
-import { useEffect, useState } from "react";
-import { getTrendingGames } from "../api/gamesApi";
-import TrendingSection from "../components/home/trendingSection";
+import TrendingSection from "../components/home/TrendingSection";
 import HeroSection from "../components/home/HeroSection";
-
-
+import NewReleasesSection from "../components/home/NewReleasesSection";
+import TopRatedSection from "../components/home/TopRatedSection";
+import { useHomeData } from "../hooks/useHomeData";
+import DiscoverSection from "../components/home/DiscoverSection";
+import IncomingSection from "../components/home/IncomingSection";
 
 const HomePage = () => {
 
-	const [trendingGames, setTrendingGames] = useState([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [errorMessage, setErrorMessage] = useState(null);
-
-	useEffect(() => {
-		const fetchTrending = async () => {
-			try {
-				const data = await getTrendingGames();
-				setTrendingGames(data);
-			} catch (error) {
-				setErrorMessage(error.message);
-			} finally { //UX -> Used for message "Loading..." on screen whatever the answer  is 
-				setIsLoading(false);
-			}
-		}
-		fetchTrending()
-	},
-		[]);
+	const {
+		trendingGames,
+		incomingGames,
+		newGames,
+		topRatedGames,
+		discoverGames,
+		isLoading,
+		errorMessage
+	} = useHomeData();
 
 	// Early return : before rendering the page check these:
 	if (isLoading) {
 		return <p> Cargando...</p>
 	};
+
 	if (errorMessage) {
 		return <p>Error: {errorMessage}</p>;
 	}
@@ -39,6 +32,10 @@ const HomePage = () => {
 			<h1>HOME</h1>
 			<HeroSection games={trendingGames} />
 			<TrendingSection games={trendingGames} />
+			<IncomingSection games={incomingGames} />
+			<DiscoverSection games={discoverGames} />
+			<NewReleasesSection games={newGames} />
+			<TopRatedSection games={topRatedGames} />
 		</div>
 	)
 }
