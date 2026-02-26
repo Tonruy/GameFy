@@ -56,7 +56,7 @@ const HeroSection = ({ games }) => {
 				return "";
 			}
 
-			return url.replace("t_thumb", "t_screenshot_huge");
+			return url.replace(/t_[a-z0-9_]+/i, "t_1080p");
 		};
 
 		const toHighResCover = (url) => {
@@ -64,7 +64,7 @@ const HeroSection = ({ games }) => {
 				return "";
 			}
 
-			return url.replace("t_thumb", "t_cover_big_2x");
+			return url.replace(/t_[a-z0-9_]+/i, "t_cover_big_2x");
 		};
 
 		let isCancelled = false;
@@ -132,7 +132,7 @@ const HeroSection = ({ games }) => {
 	const currentGame = games.length && order.length ? games[order[position]] : null;
 	const heroImage =
 		currentGame
-			? heroBackgroundByGameId[currentGame.id] || (currentGame.coverUrl ? currentGame.coverUrl.replace("t_thumb", "t_cover_big_2x") : "")
+			? heroBackgroundByGameId[currentGame.id] || (currentGame.coverUrl ? currentGame.coverUrl.replace(/t_[a-z0-9_]+/i, "t_cover_big_2x") : "")
 			: "";
 	const heroStyle = {};
 

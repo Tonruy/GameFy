@@ -24,3 +24,12 @@ export const getIncomingGames = () => {
 export const getGameMedia = (gameId) => {
 	return request(`/api/games/${gameId}/media`);
 };
+
+
+export const getGameById = (gameId) => {
+	return request (`/api/games/${gameId}`);
+};
+
+export const getSimilarGames = (gameId) => {
+	return request (`/api/games/${gameId}/similar`);
+};
