@@ -4,7 +4,6 @@ const {
   searchGameService,
   getGameByIdService,
   getNewGamesService,
-  getGameMediaService,
   getSimilarGamesService,
   getTopRatedGamesService,
   getDiscoverGamesService
@@ -95,23 +94,6 @@ const getNewGames = async (req, res) => {
   }
 };
 
-const getGameMedia = async (req, res) => {
-  try {
-    const gameId = req.params.gameId;
-
-    if (!gameId) {
-      return res.status(400).json({ message: 'Missing parameter game ID' });
-    }
-
-    const mediaResponse = await getGameMediaService(gameId);
-    res.status(200).json(mediaResponse);
-
-  } catch (error) {
-    console.error('Error in getGameMedia:', error.message);
-    res.status(500).json({ message: 'Error obtaining game media' });
-  }
-};
-
 const getSimilarGames = async (req, res) => {
   try {
     const gameId = req.params.gameId;
@@ -137,7 +119,6 @@ module.exports = {
   searchGame,
   getGameById,
   getNewGames,
-  getGameMedia,
   getSimilarGames,
   getTopRatedGames,
   getDiscoverGames

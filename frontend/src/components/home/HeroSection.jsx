@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getGameMedia } from "../../api/gamesApi";
 
 const HeroSection = ({ games }) => {
 	// Initial states for games showed in Hero (I dont want the same order than trending)
 	const [order, setOrder] = useState([]);
 	const [position, setPosition] = useState(0);
-	const [heroBackgroundByGameId, setHeroBackgroundByGameId] = useState({});
 
 	// Shuffle Fisher-Yates
 	const shuffle = (array) => {
@@ -50,90 +48,24 @@ const HeroSection = ({ games }) => {
 		};
 	}, [order]);
 
-	useEffect(() => {
-		const toHighResScreenshot = (url) => {
-			if (!url) {
-				return "";
-			}
+	const toHeroImageUrl = (game) => {
+		if (!game) {
+			return "";
+		}
 
-			return url.replace(/t_[a-z0-9_]+/i, "t_1080p");
-		};
+		if (game.heroImageUrl) {
+			return game.heroImageUrl.replace(/t_[a-z0-9_]+/i, "t_1080p");
+		}
 
-		const toHighResCover = (url) => {
-			if (!url) {
-				return "";
-			}
+		if (game.coverUrl) {
+			return game.coverUrl.replace(/t_[a-z0-9_]+/i, "t_cover_big_2x");
+		}
 
-			return url.replace(/t_[a-z0-9_]+/i, "t_cover_big_2x");
-		};
-
-		let isCancelled = false;
-
-		const loadAllHeroScreenshots = async () => {
-			if (!games.length) {
-				return;
-			}
-
-			const uniqueGameIds = [];
-			games.forEach((game) => {
-				if (game && game.id && !uniqueGameIds.includes(game.id)) {
-					uniqueGameIds.push(game.id);
-				}
-			});
-
-			await Promise.all(
-				uniqueGameIds.map(async (gameId) => {
-					try {
-						const media = await getGameMedia(gameId);
-						const screenshot = media ? media.heroScreenshotUrl : "";
-						const highResScreenshot = toHighResScreenshot(screenshot);
-						const game = games.find((item) => item.id === gameId);
-						const highResCover = game ? toHighResCover(game.coverUrl) : "";
-						const finalHeroImage = highResScreenshot || highResCover;
-
-						if (!finalHeroImage || isCancelled) {
-							return;
-						}
-
-						setHeroBackgroundByGameId((previousBackgrounds) => ({
-							...previousBackgrounds,
-							[gameId]: finalHeroImage
-						}));
-					} catch (error) {
-						if (isCancelled) {
-							return null;
-						}
-
-						const game = games.find((item) => item.id === gameId);
-						const highResCover = game ? toHighResCover(game.coverUrl) : "";
-
-						if (!highResCover) {
-							return null;
-						}
-
-						setHeroBackgroundByGameId((previousBackgrounds) => ({
-							...previousBackgrounds,
-							[gameId]: highResCover
-						}));
-
-						return null;
-					}
-				})
-			);
-		};
-
-		loadAllHeroScreenshots();
-
-		return () => {
-			isCancelled = true;
-		};
-	}, [games]);
+		return "";
+	};
 
 	const currentGame = games.length && order.length ? games[order[position]] : null;
-	const heroImage =
-		currentGame
-			? heroBackgroundByGameId[currentGame.id] || (currentGame.coverUrl ? currentGame.coverUrl.replace(/t_[a-z0-9_]+/i, "t_cover_big_2x") : "")
-			: "";
+	const heroImage = toHeroImageUrl(currentGame);
 	const heroStyle = {};
 
 	if (!games.length || !order.length || !currentGame) {

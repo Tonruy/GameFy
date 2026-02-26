@@ -7,7 +7,6 @@ const {
   searchGame,
   getGameById,
   getNewGames,
-  getGameMedia,
   getSimilarGames,
   getTopRatedGames,
   getDiscoverGames
@@ -21,7 +20,6 @@ router.get('/incoming', getIncomingGames);
 router.get('/discover', getDiscoverGames);
 router.get('/search', searchGame);
 router.get('/top-rated', getTopRatedGames);
-router.get('/:gameId/media', getGameMedia);
 router.get('/:gameId/similar', getSimilarGames);
 router.get('/:gameId', getGameById);
 

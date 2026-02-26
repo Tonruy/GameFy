@@ -9,7 +9,6 @@ jest.mock('../services/games', () => ({
   searchGameService: jest.fn(),
   getGameByIdService: jest.fn(),
   getNewGamesService: jest.fn(),
-  getGameMediaService: jest.fn(),
   getSimilarGamesService: jest.fn()
 }));
 
@@ -118,20 +117,6 @@ describe('Games endpoints', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ gameId: 10, name: 'Game Detail' });
     expect(gamesService.getGameByIdService).toHaveBeenCalledWith('10');
-  });
-
-  test('GET /api/games/:gameId/media -> returns media data', async () => {
-    gamesService.getGameMediaService.mockResolvedValue({
-      gameId: 20,
-      coverUrl: 'https://image.url/cover.jpg',
-      screenshotsUrls: [],
-      videoIds: []
-    });
-
-    const response = await request(app).get('/api/games/20/media');
-
-    expect(response.status).toBe(200);
-    expect(response.body.gameId).toBe(20);
   });
 
   test('GET /api/games/:gameId/similar -> returns similar games', async () => {

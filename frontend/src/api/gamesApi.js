@@ -21,10 +21,6 @@ export const getIncomingGames = () => {
 	return request('/api/games/incoming');
 };
 
-export const getGameMedia = (gameId) => {
-	return request(`/api/games/${gameId}/media`);
-};
-
 
 export const getGameById = (gameId) => {
 	return request (`/api/games/${gameId}`);

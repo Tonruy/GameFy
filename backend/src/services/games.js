@@ -2,6 +2,72 @@
 const { executeIgdbQuery } = require('./igdb');
 const { mapGameCard, mapGameDetail } = require('../utils/gamesMapper');
 
+const buildIgdbImgUrl = (imagePath) => {
+  if (!imagePath) {
+    return null;
+  }
+
+  if (imagePath.startsWith('//')) {
+    return `https:${imagePath}`;
+  }
+
+  return imagePath;
+};
+
+const toLargeScreenshotUrl = (url) => {
+  if (!url) {
+    return null;
+  }
+
+  return url.replace(/t_[a-z0-9_]+/i, 't_1080p');
+};
+
+const selectHeroImageUrl = (igdbGame) => {
+  if (!igdbGame || !Array.isArray(igdbGame.screenshots)) {
+    return null;
+  }
+
+  const validScreenshots = [];
+
+  igdbGame.screenshots.forEach((screenshot) => {
+    if (!screenshot || !screenshot.url) {
+      return;
+    }
+
+    if (!screenshot.width || !screenshot.height) {
+      return;
+    }
+
+    const isLandscape = screenshot.width >= screenshot.height;
+    const ratio = screenshot.width / screenshot.height;
+    const isHeroRatio = ratio >= 1.45 && ratio <= 2.4;
+    const hasResolution = screenshot.width >= 1280 && screenshot.height >= 720;
+    const hasAlphaChannel = Boolean(screenshot.alpha_channel);
+
+    if (!isLandscape || !isHeroRatio || !hasResolution || hasAlphaChannel) {
+      return;
+    }
+
+    validScreenshots.push(screenshot);
+  });
+
+  if (validScreenshots.length === 0) {
+    return null;
+  }
+
+  validScreenshots.sort((leftScreenshot, rightScreenshot) => {
+    const leftArea = (leftScreenshot.width || 0) * (leftScreenshot.height || 0);
+    const rightArea = (rightScreenshot.width || 0) * (rightScreenshot.height || 0);
+
+    return rightArea - leftArea;
+  });
+
+  const selectedScreenshot = validScreenshots[0];
+  const selectedScreenshotUrl = buildIgdbImgUrl(selectedScreenshot.url);
+
+  return toLargeScreenshotUrl(selectedScreenshotUrl);
+};
+
 const getTrendingGamesService = async () => {
   const nowUnix = Math.floor(Date.now() / 1000); // 1000 because we need milisecs
   const oneYearAgoUnix = nowUnix - (60 * 60 * 24 * 365); // seconds in a year
@@ -13,7 +79,11 @@ const getTrendingGamesService = async () => {
       total_rating_count, 
       first_release_date,
       hypes,
-      cover.url;
+      cover.url,
+      screenshots.url,
+      screenshots.width,
+      screenshots.height,
+      screenshots.alpha_channel;
     where first_release_date != null 
       & first_release_date >= ${oneYearAgoUnix}
       & first_release_date <= ${nowUnix}
@@ -28,7 +98,13 @@ const getTrendingGamesService = async () => {
   // Again checking is an array because it is an external API
   if (igdbGames && Array.isArray(igdbGames)) {
     igdbGames.forEach((igdbGame) => {
-      gamesList.push(mapGameCard(igdbGame));
+      const gameCard = mapGameCard(igdbGame);
+      const heroImageUrl = selectHeroImageUrl(igdbGame);
+
+      gamesList.push({
+        ...gameCard,
+        heroImageUrl: heroImageUrl
+      });
     });
   }
 
@@ -242,85 +318,6 @@ const getNewGamesService = async () => {
   return gamesList;
 };
 
-// Best Practices : separating the media and calling it in the functions we need because is overfetching. Media is a big-data array and not needed in every fetch
-const getGameMediaService = async (gameId) => {
-  const igdbQuery = `
-    fields 
-      cover.url, 
-      screenshots.url, 
-      screenshots.width,
-      screenshots.height,
-      screenshots.alpha_channel,
-      videos.video_id;
-    where id = ${gameId};
-    limit 1;
-  `;
-
-  const mediaResponse = await executeIgdbQuery('games', igdbQuery);
-
-  // Important for not error in case the array is empty
-  if (!mediaResponse || !Array.isArray(mediaResponse) || mediaResponse.length === 0) {
-    return null;
-  }
-
-  const mediaDetail = mapGameDetail(mediaResponse[0]);
-  const screenshots = Array.isArray(mediaDetail.screenshots) ? mediaDetail.screenshots : [];
-
-  const validLandscapeScreenshots = screenshots.filter((screenshot) => {
-    if (!screenshot || !screenshot.url) {
-      return false;
-    }
-
-    if (!screenshot.width || !screenshot.height) {
-      return false;
-    }
-
-    const ratio = screenshot.width / screenshot.height;
-    const isLandscape = screenshot.width >= screenshot.height;
-    const isGameplayLikeRatio = ratio >= 1.45 && ratio <= 2.4;
-
-    return isLandscape && isGameplayLikeRatio && !screenshot.alphaChannel;
-  });
-
-  const fallbackScreenshots = screenshots.filter((screenshot) => {
-    if (!screenshot || !screenshot.url) {
-      return false;
-    }
-
-    if (!screenshot.width || !screenshot.height) {
-      return false;
-    }
-
-    return screenshot.width >= screenshot.height;
-  });
-
-  let heroScreenshotUrl = null;
-  const byResolutionDesc = (left, right) => {
-    const leftArea = (left.width || 0) * (left.height || 0);
-    const rightArea = (right.width || 0) * (right.height || 0);
-
-    return rightArea - leftArea;
-  };
-
-  if (validLandscapeScreenshots.length > 0) {
-    validLandscapeScreenshots.sort(byResolutionDesc);
-    heroScreenshotUrl = validLandscapeScreenshots[0].url;
-  } else if (fallbackScreenshots.length > 0) {
-    fallbackScreenshots.sort(byResolutionDesc);
-    heroScreenshotUrl = fallbackScreenshots[0].url;
-  } else if (mediaDetail.screenshotsUrls && mediaDetail.screenshotsUrls.length > 0) {
-    heroScreenshotUrl = mediaDetail.screenshotsUrls[0];
-  }
-
-  return {
-    gameId: mediaDetail.gameId,
-    coverUrl: mediaDetail.coverUrl,
-    screenshotsUrls: mediaDetail.screenshotsUrls,
-    heroScreenshotUrl: heroScreenshotUrl,
-    videoIds: mediaDetail.videoIds
-  };
-};
-
 const getSimilarGamesService = async (gameId) => {
   // gameResponse is an array type Number
   const gameResponse = await executeIgdbQuery('games', `
@@ -368,7 +365,6 @@ module.exports = {
   searchGameService,
   getGameByIdService,
   getNewGamesService,
-  getGameMediaService,
   getSimilarGamesService,
   getTopRatedGamesService,
   getDiscoverGamesService
