@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useGameDetail } from '../hooks/useGameDetail';
 import GameDetailLayout from '../components/gameDetail/GameDetailLayout';
+import Spinner from "../components/ui/spinner/Spinner";
 
 
 export default function GameDetailPage() {
@@ -13,17 +14,13 @@ export default function GameDetailPage() {
 		isLoading
 	} = useGameDetail(gameId);
 
-	if (isLoading) {
-		return <p> Cargando...</p>
-	};
-
-	if (errorMessage) {
-		return <p>Error: {errorMessage}</p>;
-	}
-
-
 	return (
-		<GameDetailLayout game={gameData} similarGames={gameSimilars} />
-
+		isLoading ? (
+			<Spinner />
+		) : errorMessage ? (
+			<p>Error: {errorMessage}</p>
+		) : (
+			<GameDetailLayout game={gameData} similarGames={gameSimilars} />
+		)
 	)
 }

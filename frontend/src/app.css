@@ -50,6 +50,8 @@ header {
 	max-width: var(--app-max);
 	margin: 0 auto;
 	padding: 14px 18px !important;
+	position: relative;
+	min-height: 82px;
 	border: 1px solid var(--app-stroke);
 	border-bottom: 1px solid var(--app-stroke) !important;
 	border-radius: 16px;
@@ -76,7 +78,28 @@ header a:first-child {
 	box-shadow: 0 0 18px rgba(166, 77, 255, 0.25);
 }
 
+header a.header__brand {
+	margin-right: 0 !important;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+	border-radius: 0;
+	position: absolute;
+	left: 18px;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 2;
+}
+
+.header__brandLogo {
+	height: 72px;
+	width: auto;
+	display: block;
+}
+
 header a:last-child {
+	margin-left: auto;
 	padding: 7px 16px;
 	border-radius: 999px;
 	border: 1px solid var(--app-accent-soft);
@@ -120,6 +143,20 @@ p {
 	margin: 0;
 	color: var(--app-muted);
 	font-size: 1.05rem;
+}
+
+.spinner-container {
+	min-height: 60vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.spinner-container img {
+	width: 50%;
+	max-width: 360px;
+	height: auto;
+	display: block;
 }
 
 .hero-section {
@@ -173,6 +210,11 @@ p {
 
 	header {
 		padding: 10px 12px !important;
+		min-height: 74px;
+	}
+
+	.header__brandLogo {
+		height: 60px;
 	}
 
 	main {

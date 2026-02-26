@@ -5,6 +5,7 @@ import TopRatedSection from "../components/home/TopRatedSection";
 import { useHomeData } from "../hooks/useHomeData";
 import DiscoverSection from "../components/home/DiscoverSection";
 import IncomingSection from "../components/home/IncomingSection";
+import Spinner from "../components/ui/spinner/Spinner";
 
 const HomePage = () => {
 
@@ -18,25 +19,22 @@ const HomePage = () => {
 		errorMessage
 	} = useHomeData();
 
-	// Early return : before rendering the page check these:
-	if (isLoading) {
-		return <p> Cargando...</p>
-	};
-
-	if (errorMessage) {
-		return <p>Error: {errorMessage}</p>;
-	}
-
 	return (
-		<div>
-			<h1>HOME</h1>
-			<HeroSection games={trendingGames} />
-			<TrendingSection games={trendingGames} />
-			<IncomingSection games={incomingGames} />
-			<DiscoverSection games={discoverGames} />
-			<NewReleasesSection games={newGames} />
-			<TopRatedSection games={topRatedGames} />
-		</div>
+		isLoading ? (
+			<Spinner />
+		) : errorMessage ? (
+			<p>Error: {errorMessage}</p>
+		) : (
+			<div>
+				<h1>HOME</h1>
+				<HeroSection games={trendingGames} />
+				<TrendingSection games={trendingGames} />
+				<IncomingSection games={incomingGames} />
+				<DiscoverSection games={discoverGames} />
+				<NewReleasesSection games={newGames} />
+				<TopRatedSection games={topRatedGames} />
+			</div>
+		)
 	)
 }
 
