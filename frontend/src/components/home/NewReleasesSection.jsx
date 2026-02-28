@@ -1,5 +1,4 @@
-
-import GameRow from "../ui/gameRow/gameRow";
+import GameRow from "../ui/gameRow/GameRow";
 
 const NewReleasesSection = ({ games }) => {
 	if (!games || games.length === 0) {

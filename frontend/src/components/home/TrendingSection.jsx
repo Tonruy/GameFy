@@ -1,5 +1,4 @@
-
-import GameRow from "../ui/gameRow/gameRow";
+import GameRow from "../ui/gameRow/GameRow";
 
 
 const TrendingSection = ({ games }) => {

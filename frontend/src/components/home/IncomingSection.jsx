@@ -1,4 +1,4 @@
-import GameRow from "../ui/gameRow/gameRow";
+import GameRow from "../ui/gameRow/GameRow";
 
 const IncomingSection = ({ games }) => {
 	if (!games || games.length === 0) {
