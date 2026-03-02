@@ -9,7 +9,9 @@ const {
   getNewGames,
   getSimilarGames,
   getTopRatedGames,
-  getDiscoverGames
+  getDiscoverGames,
+  getGamesByGenre,
+  getGamesByPlatform
 } = require('../controllers/games');
 
 
@@ -21,6 +23,9 @@ router.get('/discover', getDiscoverGames);
 router.get('/search', searchGame);
 router.get('/top-rated', getTopRatedGames);
 router.get('/:gameId/similar', getSimilarGames);
+router.get('/genre/:genreId', getGamesByGenre)
+router.get('/platform/:platformId', getGamesByPlatform)
+// Dinamic general router the last one for not error in the others
 router.get('/:gameId', getGameById);
 
 module.exports = router;

@@ -29,3 +29,17 @@ export const getGameById = (gameId) => {
 export const getSimilarGames = (gameId) => {
 	return request (`/api/games/${gameId}/similar`);
 };
+
+export const getGamesByGenre = (genreId) => {
+	return request (`/api/games/genre/${genreId}`);
+};
+export const getGamesByPlatform = (platformId) => {
+	return request (`/api/games/platform/${platformId}`);
+};
+
+export const searchGames = (searchQuery) => {
+	// 	uriComponent: A string to be encoded as a URI component (a path, query string, fragment, etc.). Other values are converted to strings
+// Need it for spaces, "uncommon" characters( ! ? :  spaces ..) to encoded in UTF-8 
+// Recommended for query params
+  return request(`/api/games/search?searchQuery=${encodeURIComponent(searchQuery)}`);
+};

@@ -6,7 +6,9 @@ const {
   getNewGamesService,
   getSimilarGamesService,
   getTopRatedGamesService,
-  getDiscoverGamesService
+  getDiscoverGamesService,
+  getGamesByGenreService,
+  getGamesByPlatformService
 } = require('../services/games');
 
 const getTrendingGames = async (req, res) => {
@@ -111,6 +113,43 @@ const getSimilarGames = async (req, res) => {
   }
 };
 
+const getGamesByGenre = async (req, res) => {
+  try {
+    //Even when the service checks the parameter, we need here too because if we don't check here, "antonio" can pass the controller
+    const genreId = req.params.genreId;
+    const parsedId = Number(genreId);
+
+    if(!parsedId ||!Number.isInteger(parsedId) || parsedId <= 0){
+      return res.status(400).json({ message: 'Missing parameter genre ID ' });
+    }
+
+    const gamesByGenre = await getGamesByGenreService(parsedId);
+    res.status(200).json(gamesByGenre);
+
+  } catch (error) {
+    console.error('Error in getGamesByGenre:', error.message);
+    res.status(500).json({ message: 'Error obtaining games with the same genre' });
+  }
+};
+
+const getGamesByPlatform = async (req, res) => {
+  try {
+    const platformId = req.params.platformId;
+    const parsedId = Number(platformId);
+
+    if(!parsedId ||!Number.isInteger(parsedId) || parsedId <= 0){
+      return res.status(400).json({ message: 'Missing parameter platform ID ' });
+    }
+
+    const gamesByPlatform = await getGamesByPlatformService(parsedId);
+    res.status(200).json(gamesByPlatform);
+
+  } catch (error) {
+    console.error('Error in getGamesByPlatform:', error.message);
+    res.status(500).json({ message: 'Error obtaining games of the platform' });
+  }
+}
+
 
 
 module.exports = {
@@ -121,5 +160,8 @@ module.exports = {
   getNewGames,
   getSimilarGames,
   getTopRatedGames,
-  getDiscoverGames
+  getDiscoverGames,
+  getGamesByGenre,
+  getGamesByPlatform
+
 };

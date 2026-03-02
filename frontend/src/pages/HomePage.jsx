@@ -26,7 +26,6 @@ const HomePage = () => {
 			<p>Error: {errorMessage}</p>
 		) : (
 			<div>
-				<h1>HOME</h1>
 				<HeroSection games={trendingGames} />
 				<TrendingSection games={trendingGames} />
 				<IncomingSection games={incomingGames} />

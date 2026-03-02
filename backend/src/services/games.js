@@ -2,6 +2,7 @@
 const { executeIgdbQuery } = require('./igdb');
 const { mapGameCard, mapGameDetail } = require('../utils/gamesMapper');
 
+// Image selected -> it has to be HD, high resolution for HERO 
 const buildIgdbImgUrl = (imagePath) => {
   if (!imagePath) {
     return null;
@@ -359,6 +360,74 @@ const getSimilarGamesService = async (gameId) => {
   return gamesList;
 };
 
+const getGamesByGenreService = async (genreId) => {
+  //Making sure is a number 
+  const parsedGenreId = Number(genreId);
+
+  if (!Number.isInteger(parsedGenreId) || parsedGenreId <= 0){
+    return [];
+  }
+
+  const igdbQuery = `
+    fields
+      id,
+      name,
+      rating,
+      total_rating_count,
+      first_release_date,
+      cover.url;
+    where 
+      genres = (${parsedGenreId}) & cover != null;
+    sort rating desc;
+    limit 100;
+  `;
+
+  const gamesByGenre = await executeIgdbQuery('games',igdbQuery);
+  
+  const gamesList = [];
+  if (gamesByGenre   && Array.isArray(gamesByGenre)) {
+    gamesByGenre.forEach((game) => {
+      gamesList.push(mapGameCard(game));
+    });
+  }
+  return gamesList;
+  
+
+};
+
+const getGamesByPlatformService = async (platformId) => {
+  const parsedPlatforms = Number(platformId);
+
+  if (!Number.isInteger(parsedPlatforms) ||parsedPlatforms <= 0) {
+    return [];
+  }
+
+  const igdbQuery = `
+    fields
+      id,
+      name,
+      rating,
+      total_rating_count,
+      first_release_date,
+      cover.url;
+    where 
+      platforms = (${parsedPlatforms  }) & cover != null;
+    sort rating desc;
+    limit 100;
+  `;
+
+  const gamesByPlatform = await executeIgdbQuery('games',igdbQuery);
+  
+  const gameList = [];
+
+  if(gamesByPlatform  && Array.isArray(gamesByPlatform  )){
+    gamesByPlatform.forEach((game) => {
+      gameList.push(mapGameCard(game))
+    });
+  }
+  return gameList;
+};
+
 module.exports = {
   getTrendingGamesService,
   getIncomingGamesService,
@@ -367,5 +436,7 @@ module.exports = {
   getNewGamesService,
   getSimilarGamesService,
   getTopRatedGamesService,
-  getDiscoverGamesService
+  getDiscoverGamesService,
+  getGamesByGenreService,
+  getGamesByPlatformService
 };

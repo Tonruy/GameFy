@@ -6,7 +6,7 @@ const GameRow = ({ title, games }) => {
 	if (!games || !games.length) {
 		return null;
 	}
-
+	// useMemo saves the result so it doesn't render again when 
 	const validGames = useMemo(() => games.filter((game) => game.coverUrl), [games]);
 
 	if (!validGames.length) {
@@ -45,7 +45,7 @@ const GameRow = ({ title, games }) => {
 			return;
 		}
 
-		// Card width + gap, measured from DOM to avoid assumptions
+		// Card width + gap, measured from DOM to avoid wrong view
 		const firstCard = listElement.querySelector(".game-row__card");
 		if (!firstCard) {
 			return;
@@ -64,6 +64,7 @@ const GameRow = ({ title, games }) => {
 		listElement.scrollBy({ left: step * direction, behavior: "smooth" });
 
 		// Update arrows after scroll animation
+		// First card -> no left arrow , last card -> no right arrow
 		window.setTimeout(updateArrowsState, 220);
 	};
 
