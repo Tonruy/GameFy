@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import logoHorizontal from '../assets/logo horizontal.png';
 import searchIcon from '../assets/search.svg';
 import { getGenres, getPlatforms } from '../api/catalogApi';
@@ -7,6 +7,7 @@ import { searchGames } from '../api/gamesApi';
 import './AppLayout.css';
 import { loginUser } from '../api/authApi';
 import { getMe } from '../api/usersApi';
+import FeedbackModal from '../components/ui/feedbackModal/FeedbackModal';
 
 
 // Layout for diferent pages
@@ -15,6 +16,7 @@ import { getMe } from '../api/usersApi';
 
 export default function AppLayout() {
 	const navigate = useNavigate();
+	const location = useLocation();
 	// Refs to access popup containers in the real DOM for outside-click detection -> click outside modals -> close them
 	const genresRef = useRef(null);
 	const platformsRef = useRef(null);
@@ -39,6 +41,12 @@ export default function AppLayout() {
 	const [isSubmittingLogin, setIsSubmittingLogin] = useState(false);
 	const [loginError, setLoginError] = useState('');
 	const [authUser, setAuthUser] = useState(null);
+	const [isAuthReady, setIsAuthReady] = useState(false);
+	const [feedbackModal, setFeedbackModal] = useState({
+		isOpen: false,
+		message: '',
+		type: 'success'
+	});
 
 
 	// Preload both catalogs on mount so popup opening feels instant
@@ -65,6 +73,7 @@ export default function AppLayout() {
 		const accessToken = localStorage.getItem('gamefy_access_token');
 		if (!accessToken) {
 			setAuthUser(null);
+			setIsAuthReady(true);
 			return;
 		}
 
@@ -76,11 +85,31 @@ export default function AppLayout() {
 				localStorage.removeItem('gamefy_access_token');
 				localStorage.removeItem('gamefy_refresh_token');
 				setAuthUser(null);
+			} finally {
+				setIsAuthReady(true);
 			}
 		};
 
 		loadCurrentUser();
 	}, []);
+
+	useEffect(() => {
+		if (!feedbackModal.isOpen) {
+			return;
+		}
+
+		const timer = setTimeout(() => {
+			setFeedbackModal({
+				isOpen: false,
+				message: '',
+				type: 'success'
+			});
+		}, 1800);
+
+		return () => {
+			clearTimeout(timer);
+		};
+	}, [feedbackModal.isOpen, feedbackModal.message]);
 
 	// Modals useEffect
 	useEffect(() => {
@@ -186,7 +215,7 @@ export default function AppLayout() {
 		const password = loginPassword.trim()
 
 		if (!identifier || !password) {
-			setLoginError('Email/username and password are required')
+			setLoginError('Email/username and password are\u00A0required') //\u00A0 We cant separate are and required (UX/UI) -> now 
 			return;
 		};
 		setIsSubmittingLogin(true);
@@ -199,17 +228,14 @@ export default function AppLayout() {
 			}
 			localStorage.setItem('gamefy_access_token', response.token);
 			localStorage.setItem('gamefy_refresh_token', response.refreshToken);
-			const currentUser = await getMe();
-			setAuthUser(currentUser || null);
-			// Clean login parameters
-			setLoginIdentifier('');
-			setLoginPassword('');
-			setIsLoginActive(false);
+			window.location.reload();
+			return;
 
 		} catch (error) {
 			localStorage.removeItem('gamefy_access_token');
 			localStorage.removeItem('gamefy_refresh_token');
 			setAuthUser(null);
+			setIsAuthReady(true);
 			setLoginError(error.message || 'Login failed'); // Always secure two possible errors in case back fails
 		} finally {
 			setIsSubmittingLogin(false);
@@ -219,9 +245,41 @@ export default function AppLayout() {
 	const handleLogout = () => {
 		localStorage.removeItem('gamefy_access_token');
 		localStorage.removeItem('gamefy_refresh_token');
-		setAuthUser(null);
-		setIsLoginActive(false);
-		resetLoginForm();
+		window.location.reload();
+	};
+
+	const syncAuthFavorites = (gameId, shouldBeFavorite) => {
+		setAuthUser((previousUser) => {
+			if (!previousUser) {
+				return previousUser;
+			}
+
+			const currentFavorites = Array.isArray(previousUser.favorites) ? previousUser.favorites : [];
+			const normalizedGameId = Number(gameId);
+			const safeGameId = Number.isNaN(normalizedGameId) ? gameId : normalizedGameId;
+
+			let nextFavorites = currentFavorites;
+
+			if (shouldBeFavorite) {
+				const alreadyExists = currentFavorites.some((id) => String(id) === String(safeGameId));
+				nextFavorites = alreadyExists ? currentFavorites : [...currentFavorites, safeGameId];
+			} else {
+				nextFavorites = currentFavorites.filter((id) => String(id) !== String(safeGameId));
+			}
+
+			return {
+				...previousUser,
+				favorites: nextFavorites
+			};
+		});
+	};
+
+	const showFeedback = (message, type = 'success') => {
+		setFeedbackModal({
+			isOpen: true,
+			message,
+			type
+		});
 	};
 
 	const handleSelectGenre = (item) => {
@@ -346,6 +404,18 @@ export default function AppLayout() {
 							</div>
 						) : null}
 					</div>
+
+					{authUser ? (
+						<div className="app-layout__catalog">
+							<button
+								type="button"
+								className="app-layout__catalogButton"
+								onClick={() => navigate('/favorites')}
+							>
+								Favorites
+							</button>
+						</div>
+					) : null}
 				</div>
 
 				<div className="app-layout__authArea">
@@ -451,8 +521,17 @@ export default function AppLayout() {
 				</div>
 			</header>
 
+			<FeedbackModal
+				isOpen={feedbackModal.isOpen}
+				message={feedbackModal.message}
+				type={feedbackModal.type}
+				onClose={() => setFeedbackModal({ isOpen: false, message: '', type: 'success' })}
+			/>
+
 			<main className="app-layout__main">
-				<Outlet />
+				<div key={`${location.pathname}${location.search}`} className="route-transition">
+					<Outlet context={{ authUser, isAuthReady, syncAuthFavorites, showFeedback }} />
+				</div>
 			</main>
 		</div>
 	);

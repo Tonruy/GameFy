@@ -56,7 +56,7 @@ export default function RegisterComponent() {
 	};
 
 	return (
-		<section className="register">
+		<section className="register route-transition">
 			<h1 className="register__title">Create Account</h1>
 			<form className="register__form" onSubmit={handleRegisterSubmit}>
 				<label htmlFor="registerEmail" className="register__label">Email</label>

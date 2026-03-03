@@ -120,15 +120,17 @@
 }
 
 .gd-btn {
-	border: 1px solid transparent;
+	border: 1px solid var(--app-accent-soft);
 	border-radius: 999px;
-	padding: 9px 16px;
-	font-weight: 800;
-	font-size: 0.92rem;
-	color: #fff;
+	padding: 7px 14px;
+	font-family: "Rajdhani", "Segoe UI", sans-serif;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--app-text);
 	cursor: pointer;
 	line-height: 1;
-	transition: transform 0.16s ease, filter 0.16s ease;
+	white-space: nowrap;
+	transition: transform 0.16s ease, filter 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
 }
 
 .gd-btn:hover {
@@ -137,7 +139,20 @@
 }
 
 .gd-btn--primary {
-	background: linear-gradient(90deg, #9849ff, #6e35ff);
+	background: rgba(166, 77, 255, 0.12);
+}
+
+.gd-btn--danger {
+	border-color: rgba(255, 90, 90, 0.55);
+	background: rgba(255, 90, 90, 0.18);
+	color: #ffdede;
+}
+
+.gd-btn:disabled {
+	opacity: 0.72;
+	cursor: not-allowed;
+	transform: none;
+	filter: none;
 }
 
 .gd-trailer {

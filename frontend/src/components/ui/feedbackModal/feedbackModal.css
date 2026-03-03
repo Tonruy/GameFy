@@ -1,0 +1,31 @@
+.feedback-modal {
+	position: fixed;
+	top: 18px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 3500;
+	padding: 10px 16px;
+	border-radius: 12px;
+	border: 1px solid rgba(255, 223, 130, 0.72);
+	background: rgba(255, 240, 178, 0.8);
+	box-shadow: 0 10px 26px rgba(7, 10, 16, 0.35);
+	backdrop-filter: blur(4px);
+}
+
+.feedback-modal__text {
+	margin: 0;
+	font-family: "Rajdhani", "Segoe UI", sans-serif;
+	font-size: 1rem;
+	font-weight: 700;
+	line-height: 1.1;
+	letter-spacing: 0.2px;
+	color: #2e3147;
+}
+
+.feedback-modal--danger {
+	border-color: rgba(255, 108, 108, 0.65);
+}
+
+.feedback-modal--danger .feedback-modal__text {
+	color: #5a1f1f;
+}

@@ -23,6 +23,11 @@
 	object-fit: cover;
 }
 
+.games-grid__cover--placeholder {
+	background:
+		linear-gradient(145deg, rgba(53, 28, 88, 0.8), rgba(14, 20, 37, 0.9));
+}
+
 .games-grid__overlay {
 	position: absolute;
 	inset: auto 0 0 0;

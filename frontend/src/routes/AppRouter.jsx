@@ -8,6 +8,7 @@ import HomePage from '../pages/HomePage';
 import RegisterPage from '../pages/RegisterPage';
 import GameDetailPage from '../pages/GameDetailPage';
 import CatalogGamesPage from '../pages/CatalogGamesPage';
+import UserFavoritesPage from '../pages/UserFavoritesPage';
 import NotFoundPage from '../pages/NotFoundPage';
 
 export default function AppRouter() {
@@ -18,6 +19,7 @@ export default function AppRouter() {
 					<Route path="/" element={<HomePage />} />
 					<Route path="/games/:gameId" element={<GameDetailPage />} />
 					<Route path="/:mode/:id" element={<CatalogGamesPage />} />
+					<Route path="/favorites" element={<UserFavoritesPage />} />
 				</Route>
 				<Route path="/auth" element={<RegisterPage />} />
 				<Route path="*" element={<NotFoundPage />} />

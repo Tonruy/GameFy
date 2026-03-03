@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+const HERO_GAMES_COUNT = 8;
+
 const HeroSection = ({ games }) => {
 	// Initial states for games showed in Hero (I dont want the same order than trending)
 	const [order, setOrder] = useState([]);
@@ -25,8 +27,9 @@ const HeroSection = ({ games }) => {
 		// Array.from(array.like , function(value, index)) -> _ means: don't use the value
 		const indexes = Array.from({ length: games.length }, (_, i) => i);
 		const shuffled = shuffle(indexes);
+		const heroIndexes = shuffled.slice(0, Math.min(HERO_GAMES_COUNT, shuffled.length));
 
-		setOrder(shuffled);
+		setOrder(heroIndexes);
 		setPosition(0);
 	}, [games]);
 

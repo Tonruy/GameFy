@@ -22,13 +22,14 @@
 
 .imgs-slider-image {
 	display: block;
-	width: min(1440px, calc(100vw - 40px));
+	width: auto;
+	height: auto;
+	max-width: calc(100vw - 40px);
 	max-height: calc(100vh - 80px);
-	object-fit: contain;
 	border: 3px solid #ffffff;
 	border-radius: 10px;
 	box-shadow: 0 20px 46px rgba(0, 0, 0, 0.55);
-	background: #111111;
+	background: transparent;
 }
 
 .imgs-slider-close-btn {

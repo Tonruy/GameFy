@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+﻿import { useCallback, useEffect, useState } from 'react'
 import "./ImageModalSlider.css";
 
 const ImageModalSlider = ({ isOpen, images, initialIndex, onClose }) => {
@@ -139,7 +139,7 @@ const ImageModalSlider = ({ isOpen, images, initialIndex, onClose }) => {
 					onClick={goPrev}
 					aria-label="Previous image"
 				>
-					‹
+					{'<'}
 				</button>
 
 				<img
@@ -154,7 +154,7 @@ const ImageModalSlider = ({ isOpen, images, initialIndex, onClose }) => {
 					onClick={goNext}
 					aria-label="Next image"
 				>
-					›
+					{'>'}
 				</button>
 			</div>
 		</div>

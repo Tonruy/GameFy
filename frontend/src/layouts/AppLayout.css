@@ -250,6 +250,17 @@
 	cursor: pointer;
 }
 
+.app-layout__loginError {
+	margin: 2px 0 0;
+	font-family: "Rajdhani", "Segoe UI", sans-serif;
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1.25;
+	text-wrap: balance;
+	text-align: center;
+	color: #ff5f5f;
+}
+
 .app-layout__loginRegisterText {
 	white-space: nowrap;
 }

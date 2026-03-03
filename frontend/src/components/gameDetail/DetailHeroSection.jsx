@@ -24,7 +24,14 @@ const withImageSize = (url, size) => {
 	return url.replace(/t_[a-z0-9_]+/i, size);
 };
 
-const DetailHeroSection = ({ game }) => {
+const DetailHeroSection = ({
+	game,
+	isAuthReady,
+	isLoggedIn,
+	isFavorite,
+	onToggleFavorite,
+	isSubmittingFavorite
+}) => {
 	if (!game) {
 		return null;
 	}
@@ -69,11 +76,18 @@ const DetailHeroSection = ({ game }) => {
 
 					<div className="gd-hero__score">{formatRating(game.rating)}</div>
 
-					<div className="gd-hero__actions">
-						<button className="gd-btn gd-btn--primary" type="button">
-							Add to Favorites
-						</button>
-					</div>
+					{isAuthReady && isLoggedIn ? (
+						<div className="gd-hero__actions">
+							<button
+								className={`gd-btn ${isFavorite ? "gd-btn--danger" : "gd-btn--primary"}`}
+								type="button"
+								onClick={onToggleFavorite}
+								disabled={isSubmittingFavorite}
+							>
+								{isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+							</button>
+						</div>
+					) : null}
 				</div>
 			</div>
 		</section>

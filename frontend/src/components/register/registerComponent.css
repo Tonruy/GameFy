@@ -5,7 +5,7 @@
 	padding: clamp(12px, 2.8vw, 26px);
 	background-image:
 		linear-gradient(rgba(5, 8, 14, 0.24), rgba(5, 8, 14, 0.24)),
-		url('../../assets/Register.jpg');
+		url('../../assets/Register.webp');
 	background-size: cover;
 	background-position: center top;
 	background-repeat: no-repeat;
@@ -18,7 +18,22 @@
 	border: 1px solid rgba(255, 255, 255, 0.14);
 	border-radius: 12px;
 	background: rgba(10, 14, 22, 0.58);
+	animation: zoomModal 2s ease forwards;
 }
+
+@keyframes zoomModal {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+	
+
 
 .register__title {
 	margin: 0 0 14px;
@@ -94,8 +109,7 @@
 	font-family: "Rajdhani", "Segoe UI", sans-serif;
 	font-size: 0.95rem;
 	font-weight: 600;
-	color: #ff9a9a;
+	color: #ff5f5f;
 }
-
 
 
