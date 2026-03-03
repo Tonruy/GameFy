@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+﻿const jwt = require('jsonwebtoken');
 
 const generateToken = require('../utils/tokenGenerator');
 const { registerService, loginService } = require('../services/auth');
@@ -61,15 +61,15 @@ const refresh = async (req, res) => {
 
     let payload;
     try {
-      payload = jwt.verify(refreshToken, process.env.SECRET_TOKEN_REFRESH);
+      payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     } catch (error) {
       return res.status(401).json({ message: 'Token expired or invalid' });
     }
 
     const newAccessToken = generateToken(
       { userId: payload.userId, role: payload.role },
-      process.env.SECRET_TOKEN,
-      process.env.EXPIRES_TOKEN || '15m'
+      process.env.ACCESS_TOKEN_SECRET,
+      process.env.ACCESS_TOKEN_EXPIRES_IN || '15m'
     );
 
     return res.status(200).json({ token: newAccessToken });
@@ -83,3 +83,4 @@ module.exports = {
   login,
   refresh
 };
+

@@ -234,25 +234,51 @@ const getDiscoverGamesService = async () => {
 
 // Determinating the fields needed for the game card and not searching by ID, its faster (no fetchs that we don't need)
 const searchGameService = async (searchQuery) => {
-  const igdbQuery = `
-    search "${searchQuery}";
+  const rawQuery = String(searchQuery || '').trim();
+  if (!rawQuery) {
+    return [];
+  }
+
+  let igdbQuery = `
+    search "${rawQuery}";
     fields
       id,
-      name, 
-      rating, 
-      total_rating_count, 
-      cover.url;
-    limit 20;
+      name;
+    limit 10;
   `;
 
-  const igdbGames = await executeIgdbQuery('games', igdbQuery);
+  let igdbGames = await executeIgdbQuery('games', igdbQuery);
+  if (!igdbGames || !Array.isArray(igdbGames)) {
+    igdbGames = [];
+  }
+
+  // Fallback: first word if full query returns no results
+  if (!igdbGames.length && rawQuery.includes(' ')) {
+    const firstWord = rawQuery.split(/\s+/)[0]; // Separate by spaces and we take the first word for fallback
+
+    if (firstWord && firstWord.length >= 2) {
+      igdbQuery = `
+        search "${firstWord}";
+        fields
+          id,
+          name;
+        limit 10;
+      `;
+
+      igdbGames = await executeIgdbQuery('games', igdbQuery);
+      if (!igdbGames || !Array.isArray(igdbGames)) {
+        igdbGames = [];
+      }
+    }
+  }
 
   const gamesList = [];
-  if (igdbGames && Array.isArray(igdbGames)) {
-    igdbGames.forEach((igdbGame) => {
-      gamesList.push(mapGameCard(igdbGame));
-    });
-  }
+  igdbGames.forEach((igdbGame) => {
+    gamesList.push({
+  id: igdbGame.id,
+  name: igdbGame.name || null
+});
+  });
 
   return gamesList;
 };

@@ -7,12 +7,15 @@
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Without options, the method is GET as default
+// throw Error because every function which use request has set try/catch
 export async function request(endpoint, options = {}) {
 	const token = localStorage.getItem('gamefy_access_token');
 	const method = (options.method || 'GET').toUpperCase();
 	// B.Practices = not changing real options -> create a copy and mutate it
 	const headers = {
-		...(token && { Authorization: `Bearer ${token}` }),
+		...(token && { 
+			Authorization: `Bearer ${token}`,
+			'auth-token': token }),
 		...options.headers
 	};
 
@@ -31,7 +34,7 @@ export async function request(endpoint, options = {}) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message);
+    throw new Error(data.errorMessage || data.message || 'Request failed'); // Throw new Error -> stops the execution of the code and create a NEW error (its like a catch)
   }
   return data;
 }

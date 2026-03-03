@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+﻿const jwt = require('jsonwebtoken');
 
 const verifyToken = async (req, res, next) => {
   // Token must be sent in header "auth-token"
@@ -9,7 +9,7 @@ const verifyToken = async (req, res, next) => {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.SECRET_TOKEN);
+    const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     req.payload = payload;
     return next();
   } catch (error) {

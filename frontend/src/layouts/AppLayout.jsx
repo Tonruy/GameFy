@@ -5,6 +5,9 @@ import searchIcon from '../assets/search.svg';
 import { getGenres, getPlatforms } from '../api/catalogApi';
 import { searchGames } from '../api/gamesApi';
 import './AppLayout.css';
+import { loginUser } from '../api/authApi';
+import { getMe } from '../api/usersApi';
+
 
 // Layout for diferent pages
 // Header -> common for the pages
@@ -17,9 +20,11 @@ export default function AppLayout() {
 	const platformsRef = useRef(null);
 	const searchRef = useRef(null);
 	const searchInputRef = useRef(null);
-	// Two different modals
+	const loginRef = useRef(null);
+	// 3 different modals but only 1 could be opened
 	const [isGenresActive, setIsGenresActive] = useState(false);
 	const [isPlatformsActive, setIsPlatformsActive] = useState(false);
+	const [isLoginActive, setIsLoginActive] = useState(false);
 	// Catalog lists are preloaded once to avoid loading state on every click
 	const [genresList, setGenresList] = useState([]);
 	const [platformsList, setPlatformsList] = useState([]);
@@ -28,6 +33,13 @@ export default function AppLayout() {
 	const [suggestions, setSuggestions] = useState([]);
 	const [isSearching, setIsSearching] = useState(false);
 	const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
+	// Login states and login submits
+	const [loginIdentifier, setLoginIdentifier] = useState('');
+	const [loginPassword, setLoginPassword] = useState('');
+	const [isSubmittingLogin, setIsSubmittingLogin] = useState(false);
+	const [loginError, setLoginError] = useState('');
+	const [authUser, setAuthUser] = useState(null);
+
 
 	// Preload both catalogs on mount so popup opening feels instant
 	// Evade fetching everytime we click the button
@@ -49,6 +61,27 @@ export default function AppLayout() {
 		preloadCatalog();
 	}, []);
 
+	useEffect(() => {
+		const accessToken = localStorage.getItem('gamefy_access_token');
+		if (!accessToken) {
+			setAuthUser(null);
+			return;
+		}
+
+		const loadCurrentUser = async () => {
+			try {
+				const userData = await getMe();
+				setAuthUser(userData || null);
+			} catch (error) {
+				localStorage.removeItem('gamefy_access_token');
+				localStorage.removeItem('gamefy_refresh_token');
+				setAuthUser(null);
+			}
+		};
+
+		loadCurrentUser();
+	}, []);
+
 	// Modals useEffect
 	useEffect(() => {
 		// Global listener closes both popups when user clicks outside both modals
@@ -56,6 +89,7 @@ export default function AppLayout() {
 			const clickedOutsideGenres = genresRef.current && !genresRef.current.contains(event.target);
 			const clickedOutsidePlatforms = platformsRef.current && !platformsRef.current.contains(event.target);
 			const clickedOutsideSearch = searchRef.current && !searchRef.current.contains(event.target);
+			const clickedOutsideLogin = loginRef.current && !loginRef.current.contains(event.target);
 
 			if (clickedOutsideGenres && clickedOutsidePlatforms) {
 				setIsGenresActive(false);
@@ -64,6 +98,11 @@ export default function AppLayout() {
 
 			if (clickedOutsideSearch) {
 				setIsSuggestionsOpen(false);
+			}
+
+			if (clickedOutsideLogin) {
+				setIsLoginActive(false);
+				resetLoginForm();
 			}
 		};
 
@@ -111,15 +150,78 @@ export default function AppLayout() {
 		};
 	}, [searchGame]);
 
+	//Handles and helpers
 	const toggleGenres = () => {
 		// Open/close Genres and always close Platforms to keep one popup at a time
-		setIsGenresActive((previousState) => !previousState);
+		setIsGenresActive((previousState) => !previousState); // If it was false, it becomes true
 		setIsPlatformsActive(false);
+		setIsLoginActive(false);
 	};
 
 	const togglePlatforms = () => {
 		setIsPlatformsActive((previousState) => !previousState);
 		setIsGenresActive(false);
+		setIsLoginActive(false);
+	};
+
+	const toggleLogin = () => {
+		setIsLoginActive((previousState) => !previousState);
+		setIsGenresActive(false);
+		setIsPlatformsActive(false);
+		setLoginError('');
+
+	};
+
+	const resetLoginForm = () => {
+		setLoginIdentifier('');
+		setLoginPassword('');
+		setLoginError('');
+	};
+
+	const handleLoginSubmit = async (event) => {
+		event.preventDefault(); // Evade to recharge the entire client and only makes the fetch of login -> Speed
+		setLoginError('');
+		// We are going to use it twice, so its better just one trim
+		const identifier = loginIdentifier.trim();
+		const password = loginPassword.trim()
+
+		if (!identifier || !password) {
+			setLoginError('Email/username and password are required')
+			return;
+		};
+		setIsSubmittingLogin(true);
+
+		try {
+			const response = await loginUser(identifier, password);
+			if (!response?.token || !response?.refreshToken) {  /* ?. = exists? */
+				setLoginError('Invalid server response');
+				return;
+			}
+			localStorage.setItem('gamefy_access_token', response.token);
+			localStorage.setItem('gamefy_refresh_token', response.refreshToken);
+			const currentUser = await getMe();
+			setAuthUser(currentUser || null);
+			// Clean login parameters
+			setLoginIdentifier('');
+			setLoginPassword('');
+			setIsLoginActive(false);
+
+		} catch (error) {
+			localStorage.removeItem('gamefy_access_token');
+			localStorage.removeItem('gamefy_refresh_token');
+			setAuthUser(null);
+			setLoginError(error.message || 'Login failed'); // Always secure two possible errors in case back fails
+		} finally {
+			setIsSubmittingLogin(false);
+		}
+	};
+
+	const handleLogout = () => {
+		localStorage.removeItem('gamefy_access_token');
+		localStorage.removeItem('gamefy_refresh_token');
+		setAuthUser(null);
+		setIsLoginActive(false);
+		resetLoginForm();
 	};
 
 	const handleSelectGenre = (item) => {
@@ -131,6 +233,8 @@ export default function AppLayout() {
 		});
 		setIsGenresActive(false);
 	};
+
+
 
 	const handleSelectPlatform = (item) => {
 		navigate(`/platform/${item.platformId}`, {
@@ -155,6 +259,7 @@ export default function AppLayout() {
 		setIsSuggestionsOpen(true);
 	};
 
+
 	const handleSearchKeyDown = (event) => {
 		if (event.key !== 'Enter') {
 			return;
@@ -172,6 +277,9 @@ export default function AppLayout() {
 		}
 
 		setIsSuggestionsOpen(false);
+		setSearchGame('');
+		setSuggestions([]);
+
 		navigate(`/games/${game.id}`);
 	};
 
@@ -293,7 +401,53 @@ export default function AppLayout() {
 							</div>
 						) : null}
 					</div>
-					<Link to="/auth" className="app-layout__login">Login</Link>
+					<div ref={loginRef} className="app-layout__catalog">
+						<button
+							type="button"
+							className="app-layout__login"
+							onClick={authUser ? handleLogout : toggleLogin}
+						>
+							{authUser ? 'Logout' : 'Login'}
+						</button>
+						{authUser ? <span className="app-layout__authUsername">{authUser.username}</span> : null}
+
+						{isLoginActive && !authUser ? (
+							<div className="app-layout__popup app-layout__popup--login">
+								<form className="app-layout__loginForm" onSubmit={handleLoginSubmit}>
+									<label htmlFor="loginIdentifier" className="app-layout__loginLabel">
+										Email or username
+									</label>
+									<input
+										id="loginIdentifier"
+										type="text"
+										className="app-layout__loginInput"
+										value={loginIdentifier}
+										onChange={(e) => setLoginIdentifier(e.target.value)}
+									/>
+
+									<label htmlFor="loginPassword" className="app-layout__loginLabel">
+										Password
+									</label>
+									<input
+										id="loginPassword"
+										type="password"
+										className="app-layout__loginInput"
+										value={loginPassword}
+										onChange={(e) => setLoginPassword(e.target.value)}
+									/>
+
+									<button type="submit" className="app-layout__loginSubmit" disabled={isSubmittingLogin}>
+										Login
+									</button>
+									{loginError ? <p className="app-layout__loginError">{loginError}</p> : null}
+
+									<p className="app-layout__loginLabel app-layout__loginRegisterText">
+										Do not have an account? <Link to="/auth">Register here</Link>
+									</p>
+								</form>
+							</div>
+						) : null}
+					</div>
 				</div>
 			</header>
 

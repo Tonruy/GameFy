@@ -38,7 +38,7 @@ export const getGamesByPlatform = (platformId) => {
 };
 
 export const searchGames = (searchQuery) => {
-	// 	uriComponent: A string to be encoded as a URI component (a path, query string, fragment, etc.). Other values are converted to strings
+// uriComponent: A string to be encoded as a URI component (a path, query string, fragment, etc.). Other values are converted to strings
 // Need it for spaces, "uncommon" characters( ! ? :  spaces ..) to encoded in UTF-8 
 // Recommended for query params
   return request(`/api/games/search?searchQuery=${encodeURIComponent(searchQuery)}`);

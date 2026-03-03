@@ -18,7 +18,8 @@
 	gap: 8px;
 }
 
-.app-layout__catalogButton {
+.app-layout__catalogButton,
+.app-layout__authArea .app-layout__login {
 	border: 1px solid var(--app-accent-soft);
 	background: rgba(166, 77, 255, 0.1);
 	color: var(--app-text);
@@ -54,6 +55,12 @@
 	gap: 4px 6px;
 }
 
+.app-layout__popup--login {
+	min-width: 280px;
+	padding: 12px;
+	display: block;
+}
+
 .app-layout__popupItem {
 	display: block;
 	width: 100%;
@@ -76,14 +83,14 @@
 	margin-left: auto;
 	display: flex;
 	align-items: center;
-	gap: 22px;
+	gap: 12px;
 }
 
 .app-layout__search {
 	position: relative;
 	display: flex;
 	align-items: center;
-	width: 180px;
+	width: 240px;
 }
 
 .app-layout__searchControl {
@@ -187,10 +194,83 @@
 	align-items: center;
 	justify-content: center;
 	margin-left: 0;
-	font-size: 1rem;
+}
+
+.app-layout__authUsername {
+	display: inline-flex;
+	align-items: center;
+	height: 38px;
+	font-family: "Rajdhani", "Segoe UI", sans-serif;
+	font-size: 1.2rem;
+	font-weight: 700;
 	line-height: 1;
+	color: var(--app-text);
 	white-space: nowrap;
-	padding: 7px 14px;
+}
+
+.app-layout__loginForm {
+	display: grid;
+	gap: 8px;
+}
+
+.app-layout__loginLabel {
+	font-family: "Rajdhani", "Segoe UI", sans-serif;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--app-text);
+}
+
+.app-layout__loginInput {
+	width: 100%;
+	height: 36px;
+	padding: 0 10px;
+	border: 1px solid var(--app-accent-soft);
+	border-radius: 8px;
+	background: rgba(10, 14, 22, 0.75);
+	color: var(--app-text);
+	font-family: "Rajdhani", "Segoe UI", sans-serif;
+	font-size: 1rem;
+}
+
+.app-layout__loginInput:focus {
+	outline: none;
+	border-color: var(--app-accent);
+}
+
+.app-layout__loginSubmit {
+	border: 1px solid var(--app-accent-soft);
+	background: rgba(166, 77, 255, 0.12);
+	color: var(--app-text);
+	border-radius: 8px;
+	height: 36px;
+	padding: 0 12px;
+	font-family: "Rajdhani", "Segoe UI", sans-serif;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.app-layout__loginRegisterText {
+	white-space: nowrap;
+}
+
+.app-layout__header .app-layout__loginRegisterText a {
+	display: inline;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+	font: inherit;
+	letter-spacing: inherit;
+	color: var(--app-text);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.app-layout__header .app-layout__loginRegisterText a:hover {
+	color: #fff;
 }
 
 .app-layout__main {
@@ -256,6 +336,11 @@
 	.app-layout__authArea .app-layout__login {
 		padding: 6px clamp(10px, 3vw, 12px);
 		font-size: clamp(0.86rem, 2.4vw, 0.95rem);
+	}
+
+	.app-layout__authUsername {
+		height: 34px;
+		font-size: clamp(0.95rem, 2.8vw, 1.1rem);
 	}
 
 	.app-layout__search {
