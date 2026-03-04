@@ -20,13 +20,16 @@ export default function AppLayout() {
 	// Refs to access popup containers in the real DOM for outside-click detection -> click outside modals -> close them
 	const genresRef = useRef(null);
 	const platformsRef = useRef(null);
+	const navRef = useRef(null);
 	const searchRef = useRef(null);
 	const searchInputRef = useRef(null);
 	const loginRef = useRef(null);
+	const menuRef = useRef(null);
 	// 3 different modals but only 1 could be opened
 	const [isGenresActive, setIsGenresActive] = useState(false);
 	const [isPlatformsActive, setIsPlatformsActive] = useState(false);
 	const [isLoginActive, setIsLoginActive] = useState(false);
+	const [isMenuActive, setIsMenuActive] = useState(false);
 	// Catalog lists are preloaded once to avoid loading state on every click
 	const [genresList, setGenresList] = useState([]);
 	const [platformsList, setPlatformsList] = useState([]);
@@ -117,12 +120,18 @@ export default function AppLayout() {
 		const handleOutsideClick = (event) => {
 			const clickedOutsideGenres = genresRef.current && !genresRef.current.contains(event.target);
 			const clickedOutsidePlatforms = platformsRef.current && !platformsRef.current.contains(event.target);
+			const clickedOutsideNav = navRef.current && !navRef.current.contains(event.target);
 			const clickedOutsideSearch = searchRef.current && !searchRef.current.contains(event.target);
 			const clickedOutsideLogin = loginRef.current && !loginRef.current.contains(event.target);
+			const clickedOutsideMenu = menuRef.current && !menuRef.current.contains(event.target);
 
 			if (clickedOutsideGenres && clickedOutsidePlatforms) {
 				setIsGenresActive(false);
 				setIsPlatformsActive(false);
+			}
+
+			if (clickedOutsideNav && clickedOutsideMenu) {
+				setIsMenuActive(false);
 			}
 
 			if (clickedOutsideSearch) {
@@ -197,8 +206,17 @@ export default function AppLayout() {
 		setIsLoginActive((previousState) => !previousState);
 		setIsGenresActive(false);
 		setIsPlatformsActive(false);
+		setIsMenuActive(false);
 		setLoginError('');
 
+	};
+
+	const toggleMenu = () => {
+		setIsMenuActive((previousState) => !previousState);
+		setIsGenresActive(false);
+		setIsPlatformsActive(false);
+		setIsLoginActive(false);
+		setIsSuggestionsOpen(false);
 	};
 
 	const resetLoginForm = () => {
@@ -290,6 +308,7 @@ export default function AppLayout() {
 			}
 		});
 		setIsGenresActive(false);
+		setIsMenuActive(false);
 	};
 
 
@@ -301,6 +320,7 @@ export default function AppLayout() {
 			}
 		});
 		setIsPlatformsActive(false);
+		setIsMenuActive(false);
 	};
 
 	const handleSearchGame = (event) => {
@@ -337,6 +357,7 @@ export default function AppLayout() {
 		setIsSuggestionsOpen(false);
 		setSearchGame('');
 		setSuggestions([]);
+		setIsMenuActive(false);
 
 		navigate(`/games/${game.id}`);
 	};
@@ -348,12 +369,15 @@ export default function AppLayout() {
 					<img className="header__brandLogo" src={logoHorizontal} alt="GameFy" />
 				</Link>
 
-				<div className="app-layout__nav">
+				<div ref={navRef} className={`app-layout__nav ${isMenuActive ? 'app-layout__nav--mobileOpen' : ''}`}>
 					<div className="app-layout__catalog">
 						<button
 							type="button"
 							className="app-layout__catalogButton"
-							onClick={() => navigate('/')}
+							onClick={() => {
+								navigate('/');
+								setIsMenuActive(false);
+							}}
 						>
 							Home
 						</button>
@@ -410,7 +434,10 @@ export default function AppLayout() {
 							<button
 								type="button"
 								className="app-layout__catalogButton"
-								onClick={() => navigate('/favorites')}
+								onClick={() => {
+									navigate('/favorites');
+									setIsMenuActive(false);
+								}}
 							>
 								Favorites
 							</button>
@@ -517,6 +544,20 @@ export default function AppLayout() {
 								</form>
 							</div>
 						) : null}
+					</div>
+
+					<div ref={menuRef} className="app-layout__menu">
+						<button
+							type="button"
+							className="app-layout__menuToggle"
+							onClick={toggleMenu}
+							aria-label={isMenuActive ? 'Close navigation menu' : 'Open navigation menu'}
+							aria-expanded={isMenuActive}
+						>
+							<span className="app-layout__menuToggleLine" />
+							<span className="app-layout__menuToggleLine" />
+							<span className="app-layout__menuToggleLine" />
+						</button>
 					</div>
 				</div>
 			</header>
