@@ -1,4 +1,4 @@
-/* Gaming font (Google Fonts) */
+
 @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap");
 
 :root {
@@ -15,7 +15,7 @@
 	overflow: visible;
 }
 
-/* Title like mockup */
+
 .game-row__header {
 	display: flex;
 	align-items: center;
@@ -43,13 +43,13 @@
 	background: linear-gradient(90deg, var(--gf-purple), rgba(148, 47, 155, 0));
 }
 
-/* Viewport with arrows */
+
 .game-row__viewport {
 	position: relative;
 	overflow: visible;
 }
 
-/* Carousel */
+
 .game-row__list {
 	--gap: 16px;
 
@@ -61,7 +61,7 @@
 
 	scroll-behavior: smooth;
 
-	/* keep room on right for the next arrow, but start flush on the left */
+	
 	padding: 22px 56px 32px 0;
 
 	scrollbar-width: none;
@@ -71,7 +71,7 @@
 	display: none;
 }
 
-/* Card: 4 visible per view */
+
 .game-row__card {
 	flex: 0 0 auto;
 	width: calc((100% - (var(--gap) * 3)) / 4);
@@ -88,17 +88,17 @@
 	background: var(--gf-surface);
 	border: 1px solid rgba(255, 255, 255, 0.08);
 
-	/* IMPORTANT: allow glow outside */
+	
 	overflow: visible;
 
-	/* No base shadow => avoids "uniform shadow block" */
+	
 	box-shadow: none;
 
 	transition: transform 160ms ease, border-color 160ms ease;
 	z-index: 0;
 }
 
-/* Glow rendered outside the tile (no clipping / no hard edges) */
+
 .game-row__card::before {
 	content: "";
 	position: absolute;
@@ -119,7 +119,7 @@
 	pointer-events: none;
 }
 
-/* Cover: this is where we clip only the image */
+
 .game-row__cover {
 	width: 100%;
 	aspect-ratio: 3 / 4;
@@ -142,7 +142,7 @@
 	filter: saturate(1.08) contrast(1.08);
 }
 
-/* Overlay: stronger for bad covers / readability */
+
 .game-row__overlay {
 	position: absolute;
 	left: 0;
@@ -178,7 +178,7 @@
 		0 0 10px rgba(0, 0, 0, 0.7);
 }
 
-/* Hover: lift + zoom + glow (no box-shadow edges) */
+
 .game-row__card:hover {
 	transform: translateY(-6px) scale(1.03);
 	border-color: rgba(148, 47, 155, 0.6);
@@ -194,7 +194,7 @@
 	filter: saturate(1.12) contrast(1.12);
 }
 
-/* Arrows */
+
 .game-row__arrow {
 	position: absolute;
 	top: 50%;
@@ -219,7 +219,7 @@
 	opacity: 0;
 }
 
-/* Only show arrows when viewport hovered AND arrow is enabled */
+
 .game-row__viewport:hover .game-row__arrow:not(:disabled) {
 	opacity: 1;
 }
@@ -229,7 +229,7 @@
 	box-shadow: 0 0 22px var(--gf-purple-glow);
 }
 
-/* Disabled arrows must never appear */
+
 .game-row__arrow:disabled {
 	opacity: 0 !important;
 	pointer-events: none;
@@ -251,7 +251,7 @@
 	text-shadow: 0 0 10px rgba(148, 47, 155, 0.35);
 }
 
-/* Responsive */
+
 @media (max-width: 740px) {
 	.game-row__card {
 		width: calc((100% - var(--gap)) / 2);

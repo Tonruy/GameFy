@@ -8,7 +8,7 @@
 	flex-wrap: nowrap;
 }
 
-/* Hidden desktop-width model used to decide when header must switch to burger mode. */
+
 .app-layout__headerMeasure {
 	position: absolute;
 	top: 0;
@@ -449,7 +449,7 @@
 	padding: 16px;
 }
 
-/* Compact mode enabled by JS when desktop header model does not fit. */
+
 .app-layout--compact .app-layout__header > a.header__brand,
 .app-layout--compact .app-layout__header > a.header__brand:first-child {
 	position: static;
@@ -556,7 +556,7 @@
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
-	/* Keep login modal size stable across breakpoints. */
+	
 	.app-layout__popup--login {
 		min-width: 280px;
 		width: min(280px, calc(100vw - 56px));

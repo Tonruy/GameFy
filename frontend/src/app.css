@@ -1,4 +1,4 @@
-/* Temporary global base styles for fast visual scaffolding. */
+
 @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;600;700&display=swap");
 
 :root {
@@ -124,7 +124,7 @@ main > div {
 	gap: 16px;
 }
 
-/* Critical for carousel rows inside CSS grid: prevents content from expanding the panel width. */
+
 main > div > * {
 	min-width: 0;
 }
