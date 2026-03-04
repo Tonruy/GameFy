@@ -2,14 +2,219 @@
 const { executeIgdbQuery } = require('./igdb');
 const { mapGameCard, mapGameDetail } = require('../utils/gamesMapper');
 
+// Image selected -> it has to be HD, high resolution for HERO 
+const buildIgdbImgUrl = (imagePath) => {
+  if (!imagePath) {
+    return null;
+  }
+
+  if (imagePath.startsWith('//')) {
+    return `https:${imagePath}`;
+  }
+
+  return imagePath;
+};
+
+const toLargeScreenshotUrl = (url) => {
+  if (!url) {
+    return null;
+  }
+
+  return url.replace(/t_[a-z0-9_]+/i, 't_1080p');
+};
+
+const selectHeroImageUrl = (igdbGame) => {
+  if (!igdbGame || !Array.isArray(igdbGame.screenshots)) {
+    return null;
+  }
+
+  const validScreenshots = [];
+
+  igdbGame.screenshots.forEach((screenshot) => {
+    if (!screenshot || !screenshot.url) {
+      return;
+    }
+
+    if (!screenshot.width || !screenshot.height) {
+      return;
+    }
+
+    const isLandscape = screenshot.width >= screenshot.height;
+    const ratio = screenshot.width / screenshot.height;
+    const isHeroRatio = ratio >= 1.45 && ratio <= 2.4;
+    const hasResolution = screenshot.width >= 1280 && screenshot.height >= 720;
+    const hasAlphaChannel = Boolean(screenshot.alpha_channel);
+
+    if (!isLandscape || !isHeroRatio || !hasResolution || hasAlphaChannel) {
+      return;
+    }
+
+    validScreenshots.push(screenshot);
+  });
+
+  if (validScreenshots.length === 0) {
+    return null;
+  }
+
+  validScreenshots.sort((leftScreenshot, rightScreenshot) => {
+    const leftArea = (leftScreenshot.width || 0) * (leftScreenshot.height || 0);
+    const rightArea = (rightScreenshot.width || 0) * (rightScreenshot.height || 0);
+
+    return rightArea - leftArea;
+  });
+
+  const selectedScreenshot = validScreenshots[0];
+  const selectedScreenshotUrl = buildIgdbImgUrl(selectedScreenshot.url);
+
+  return toLargeScreenshotUrl(selectedScreenshotUrl);
+};
+
 const getTrendingGamesService = async () => {
+  const nowUnix = Math.floor(Date.now() / 1000); // 1000 because we need milisecs
+  const oneYearAgoUnix = nowUnix - (60 * 60 * 24 * 365); // seconds in a year
+// Where only can gives one boolean answer so all conditions together with &
   const igdbQuery = `
     fields 
       name, 
       rating, 
       total_rating_count, 
+      first_release_date,
+      hypes,
+      cover.url,
+      screenshots.url,
+      screenshots.width,
+      screenshots.height,
+      screenshots.alpha_channel;
+    where first_release_date != null 
+      & first_release_date >= ${oneYearAgoUnix}
+      & first_release_date <= ${nowUnix}
+      & hypes != null;
+    sort hypes desc;
+    limit 20;
+  `;
+
+  const igdbGames = await executeIgdbQuery('games', igdbQuery);
+
+  const gamesList = [];
+  // Again checking is an array because it is an external API
+  if (igdbGames && Array.isArray(igdbGames)) {
+    igdbGames.forEach((igdbGame) => {
+      const gameCard = mapGameCard(igdbGame);
+      const heroImageUrl = selectHeroImageUrl(igdbGame);
+
+      gamesList.push({
+        ...gameCard,
+        heroImageUrl: heroImageUrl
+      });
+    });
+  }
+
+  return gamesList;
+};
+
+const getIncomingGamesService = async () => {
+  // Incoming: Most hyped upcoming games
+  const nowUnix = Math.floor(Date.now() / 1000);
+
+  const igdbQuery = `
+    fields 
+      name,
+      rating,
+      total_rating_count,
+      first_release_date,
+      hypes,
       cover.url;
-    sort total_rating_count desc;
+    where first_release_date != null
+      & first_release_date > ${nowUnix}
+      & hypes != null;
+    sort hypes desc;
+    limit 20;
+  `;
+
+  const igdbGames = await executeIgdbQuery('games', igdbQuery);
+
+  const gamesList = [];
+  if (igdbGames && Array.isArray(igdbGames)) {
+    igdbGames.forEach((igdbGame) => {
+      gamesList.push(mapGameCard(igdbGame));
+    });
+  }
+
+  return gamesList;
+};
+
+const getTopRatedGamesService = async () => {
+  // Specific where because games re-edited like "The Witcher" appeared 4 times in a row
+  const igdbQuery = `
+    fields 
+      id,
+      name, 
+      rating, 
+      total_rating_count, 
+      parent_game,
+      version_parent,
+      cover.url;
+    where 
+      rating != null
+      & total_rating_count > 50
+      & cover != null;
+    sort rating desc;
+    limit 100;
+  `;
+
+  const igdbGames = await executeIgdbQuery('games', igdbQuery);
+
+  const gamesList = [];
+  const uniqueNames = new Set();
+  // Again checking is an array because it is an external API
+  if (igdbGames && Array.isArray(igdbGames)) {
+    igdbGames.forEach((igdbGame) => {
+      const gameCard = mapGameCard(igdbGame);
+
+      if (!gameCard.name) {
+        return;
+      }
+
+      if (igdbGame.parent_game || igdbGame.version_parent) {
+        return;
+      }
+
+      const normalizedName = gameCard.name.trim().toLowerCase();
+      const canonicalName = normalizedName
+        .replace(/\s+-\s+.*$/i, '')
+        .replace(
+          /:\s*(game of the year edition|complete edition|special edition|anniversary edition|ultimate edition|the final cut|hd edition|definitive edition|director's cut|enhanced edition|remastered)$/i,
+          ''
+        )
+        .replace(/\s*\((game of the year edition|complete edition|special edition|anniversary edition|ultimate edition|the final cut|hd edition|definitive edition|director's cut|enhanced edition|remastered)\)\s*$/i, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (uniqueNames.has(canonicalName)) {
+        return;
+      }
+
+      uniqueNames.add(canonicalName);
+      gamesList.push(gameCard);
+    });
+  }
+
+  return gamesList.slice(0, 20);
+};
+
+const getDiscoverGamesService = async () => {
+  // Discover logic: Popular games but ONLY from the last 12 months (avoid old classics dominating the list)
+  const oneYearAgoUnix = Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 365);
+
+  const igdbQuery = `
+    fields 
+      name, 
+      first_release_date,
+      rating, 
+      total_rating_count, 
+      cover.url;
+    where first_release_date != null & first_release_date >= ${oneYearAgoUnix};
+    sort popularity desc;
     limit 20;
   `;
 
@@ -26,27 +231,54 @@ const getTrendingGamesService = async () => {
   return gamesList;
 };
 
+
 // Determinating the fields needed for the game card and not searching by ID, its faster (no fetchs that we don't need)
 const searchGameService = async (searchQuery) => {
-  const igdbQuery = `
-    search "${searchQuery}";
+  const rawQuery = String(searchQuery || '').trim();
+  if (!rawQuery) {
+    return [];
+  }
+
+  let igdbQuery = `
+    search "${rawQuery}";
     fields
       id,
-      name, 
-      rating, 
-      total_rating_count, 
-      cover.url;
-    limit 20;
+      name;
+    limit 10;
   `;
 
-  const igdbGames = await executeIgdbQuery('games', igdbQuery);
+  let igdbGames = await executeIgdbQuery('games', igdbQuery);
+  if (!igdbGames || !Array.isArray(igdbGames)) {
+    igdbGames = [];
+  }
+
+  // Fallback: first word if full query returns no results
+  if (!igdbGames.length && rawQuery.includes(' ')) {
+    const firstWord = rawQuery.split(/\s+/)[0]; // Separate by spaces and we take the first word for fallback
+
+    if (firstWord && firstWord.length >= 2) {
+      igdbQuery = `
+        search "${firstWord}";
+        fields
+          id,
+          name;
+        limit 10;
+      `;
+
+      igdbGames = await executeIgdbQuery('games', igdbQuery);
+      if (!igdbGames || !Array.isArray(igdbGames)) {
+        igdbGames = [];
+      }
+    }
+  }
 
   const gamesList = [];
-  if (igdbGames && Array.isArray(igdbGames)) {
-    igdbGames.forEach((igdbGame) => {
-      gamesList.push(mapGameCard(igdbGame));
-    });
-  }
+  igdbGames.forEach((igdbGame) => {
+    gamesList.push({
+  id: igdbGame.id,
+  name: igdbGame.name || null
+});
+  });
 
   return gamesList;
 };
@@ -83,14 +315,20 @@ const getGameByIdService = async (gameId) => {
 
 
 const getNewGamesService = async () => {
+  const nowUnix = Math.floor(Date.now() / 1000);
+  const oneYearAgoUnix = nowUnix - (60 * 60 * 24 * 365);
   const igdbQuery = `
     fields 
+      id,
       name, 
       first_release_date, 
       rating, 
       total_rating_count, 
       cover.url;
-    where first_release_date != null;
+    where 
+      first_release_date != null
+      & first_release_date >= ${oneYearAgoUnix}
+      & first_release_date <= ${nowUnix};
     sort first_release_date desc;
     limit 20;
   `;
@@ -105,34 +343,6 @@ const getNewGamesService = async () => {
   }
 
   return gamesList;
-};
-
-// Best Practices : separating the media and calling it in the functions we need because is overfetching. Media is a big-data array and not needed in every fetch
-const getGameMediaService = async (gameId) => {
-  const igdbQuery = `
-    fields 
-      cover.url, 
-      screenshots.url, 
-      videos.video_id;
-    where id = ${gameId};
-    limit 1;
-  `;
-
-  const mediaResponse = await executeIgdbQuery('games', igdbQuery);
-
-  // Important for not error in case the array is empty
-  if (!mediaResponse || !Array.isArray(mediaResponse) || mediaResponse.length === 0) {
-    return null;
-  }
-
-  const mediaDetail = mapGameDetail(mediaResponse[0]);
-
-  return {
-    gameId: mediaDetail.gameId,
-    coverUrl: mediaDetail.coverUrl,
-    screenshotsUrls: mediaDetail.screenshotsUrls,
-    videoIds: mediaDetail.videoIds
-  };
 };
 
 const getSimilarGamesService = async (gameId) => {
@@ -176,11 +386,83 @@ const getSimilarGamesService = async (gameId) => {
   return gamesList;
 };
 
+const getGamesByGenreService = async (genreId) => {
+  //Making sure is a number 
+  const parsedGenreId = Number(genreId);
+
+  if (!Number.isInteger(parsedGenreId) || parsedGenreId <= 0){
+    return [];
+  }
+
+  const igdbQuery = `
+    fields
+      id,
+      name,
+      rating,
+      total_rating_count,
+      first_release_date,
+      cover.url;
+    where 
+      genres = (${parsedGenreId}) & cover != null;
+    sort rating desc;
+    limit 100;
+  `;
+
+  const gamesByGenre = await executeIgdbQuery('games',igdbQuery);
+  
+  const gamesList = [];
+  if (gamesByGenre   && Array.isArray(gamesByGenre)) {
+    gamesByGenre.forEach((game) => {
+      gamesList.push(mapGameCard(game));
+    });
+  }
+  return gamesList;
+  
+
+};
+
+const getGamesByPlatformService = async (platformId) => {
+  const parsedPlatforms = Number(platformId);
+
+  if (!Number.isInteger(parsedPlatforms) ||parsedPlatforms <= 0) {
+    return [];
+  }
+
+  const igdbQuery = `
+    fields
+      id,
+      name,
+      rating,
+      total_rating_count,
+      first_release_date,
+      cover.url;
+    where 
+      platforms = (${parsedPlatforms  }) & cover != null;
+    sort rating desc;
+    limit 100;
+  `;
+
+  const gamesByPlatform = await executeIgdbQuery('games',igdbQuery);
+  
+  const gameList = [];
+
+  if(gamesByPlatform  && Array.isArray(gamesByPlatform  )){
+    gamesByPlatform.forEach((game) => {
+      gameList.push(mapGameCard(game))
+    });
+  }
+  return gameList;
+};
+
 module.exports = {
   getTrendingGamesService,
+  getIncomingGamesService,
   searchGameService,
   getGameByIdService,
   getNewGamesService,
-  getGameMediaService,
-  getSimilarGamesService
+  getSimilarGamesService,
+  getTopRatedGamesService,
+  getDiscoverGamesService,
+  getGamesByGenreService,
+  getGamesByPlatformService
 };

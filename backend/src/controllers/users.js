@@ -52,9 +52,17 @@ const getMe = async (req, res) => {
 const updateMe = async (req, res) => {
   try {
     const payload = req.payload;
-    const { avatarUrl, bio } = req.body;
+    const { avatarUrl, bio, username } = req.body;
 
     const updateData = {};
+
+    if (username !== undefined) {
+      const normalizedUsername = String(username).trim();
+      if (!normalizedUsername || normalizedUsername.length < 3 || normalizedUsername.includes(' ')) {
+        return res.status(400).json({ message: 'Invalid username' });
+      }
+      updateData.username = normalizedUsername;
+    }
 
     if (avatarUrl !== undefined) {
       updateData.avatarUrl = avatarUrl;
@@ -72,7 +80,7 @@ const updateMe = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       payload.userId,
       updateData,
-      { new: true }
+      { new: true, runValidators: true }
     ).select('-password');
 
     if (!updatedUser) {
@@ -81,7 +89,31 @@ const updateMe = async (req, res) => {
 
     return res.status(200).json(updatedUser);
   } catch (error) {
+    if (error && error.code === 11000) {
+      return res.status(409).json({ message: 'Username already in use' });
+    }
+
+    if (error && error.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Invalid fields to update' });
+    }
+
     return res.status(500).json({ message: 'Error updating profile' });
+  }
+};
+
+// DELETE /me
+const deleteMe = async (req, res) => {
+  try {
+    const payload = req.payload;
+    const deletedUser = await User.findByIdAndDelete(payload.userId).select('_id');
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json({ message: 'Profile deleted' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error deleting profile' });
   }
 };
 
@@ -328,6 +360,7 @@ const removeWishlist = async (req, res) => {
 module.exports = {
   getMe,
   updateMe,
+  deleteMe,
   getUserById,
   getUsersList,
   getMyFavorites,

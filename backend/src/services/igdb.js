@@ -37,7 +37,7 @@ const executeIgdbQuery = async (endpoint, queryBody) => {
       return [];
     }
     
-    // Dinamic endpoint depending on what is searching (genres, platform...)
+    // Dinamic endpoint depending on what is searching (genres, platform...) // POST = fields on querys
     const response = await fetch(`${process.env.IGDB_BASE_URL}/${endpoint}`, {
       method: 'POST',
       headers: {
@@ -51,7 +51,6 @@ const executeIgdbQuery = async (endpoint, queryBody) => {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Error consulting IGDB:', data);
       return [];
     }
 

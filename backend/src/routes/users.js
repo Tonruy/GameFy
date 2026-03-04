@@ -7,6 +7,7 @@ const router = express.Router();
 const {
   getMe,
   updateMe,
+  deleteMe,
   getUserById,
   getUsersList,
   getMyFavorites,
@@ -20,6 +21,7 @@ const {
 // Protected (access token -> user profile)
 router.get('/me', verifyToken, getMe);
 router.patch('/me', verifyToken, updateMe);
+router.delete('/me', verifyToken, deleteMe);
 
 // Favorites
 router.get('/me/favorites', verifyToken, getMyFavorites);

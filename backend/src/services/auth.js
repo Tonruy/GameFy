@@ -1,4 +1,4 @@
-const bcrypt = require('bcryptjs');
+﻿const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const generateToken = require('../utils/tokenGenerator');
 
@@ -80,14 +80,14 @@ const loginService = async (identifier, password) => {
 
     const token = generateToken(
       payload,
-      process.env.SECRET_TOKEN,
-      process.env.EXPIRES_TOKEN || '15m'
+      process.env.ACCESS_TOKEN_SECRET,
+      process.env.ACCESS_TOKEN_EXPIRES_IN || '15m'
     );
 
     const refreshToken = generateToken(
       payload,
-      process.env.SECRET_TOKEN_REFRESH,
-      process.env.EXPIRES_REFRESH || '60m'
+      process.env.REFRESH_TOKEN_SECRET,
+      process.env.REFRESH_TOKEN_EXPIRES_IN || '60m'
     );
 
     return { token, refreshToken };

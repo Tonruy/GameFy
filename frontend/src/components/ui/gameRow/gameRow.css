@@ -1,0 +1,264 @@
+
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap");
+
+:root {
+	--gf-bg: #181821;
+	--gf-surface: #1f1f2b;
+	--gf-purple: #942f9b;
+	--gf-purple-soft: #615d94;
+	--gf-purple-glow: rgba(148, 47, 155, 0.45);
+	--gf-text: #e7e6ea;
+}
+
+.game-row {
+	padding: 18px 0 12px;
+	overflow: visible;
+}
+
+
+.game-row__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 0 0 12px;
+}
+
+.game-row__title {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--gf-text);
+	letter-spacing: 0.2px;
+	position: relative;
+	padding-bottom: 6px;
+}
+
+.game-row__title::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 84px;
+	height: 2px;
+	background: linear-gradient(90deg, var(--gf-purple), rgba(148, 47, 155, 0));
+}
+
+
+.game-row__viewport {
+	position: relative;
+	overflow: visible;
+}
+
+
+.game-row__list {
+	--gap: 16px;
+
+	display: flex;
+	gap: var(--gap);
+
+	overflow-x: auto;
+	overflow-y: visible;
+
+	scroll-behavior: smooth;
+
+	
+	padding: 22px 56px 32px 0;
+
+	scrollbar-width: none;
+}
+
+.game-row__list::-webkit-scrollbar {
+	display: none;
+}
+
+
+.game-row__card {
+	flex: 0 0 auto;
+	width: calc((100% - (var(--gap) * 3)) / 4);
+	min-width: 180px;
+	max-width: 260px;
+
+	position: relative;
+
+	text-decoration: none;
+	color: inherit;
+
+	border-radius: 14px;
+
+	background: var(--gf-surface);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+
+	
+	overflow: visible;
+
+	
+	box-shadow: none;
+
+	transition: transform 160ms ease, border-color 160ms ease;
+	z-index: 0;
+}
+
+
+.game-row__card::before {
+	content: "";
+	position: absolute;
+	inset: -16px;
+	border-radius: 22px;
+
+	background: radial-gradient(
+		70% 60% at 50% 50%,
+		rgba(148, 47, 155, 0.45),
+		rgba(148, 47, 155, 0.0) 70%
+	);
+
+	filter: blur(14px);
+	opacity: 0;
+	transition: opacity 160ms ease;
+
+	z-index: -1;
+	pointer-events: none;
+}
+
+
+.game-row__cover {
+	width: 100%;
+	aspect-ratio: 3 / 4;
+	border-radius: 14px;
+	overflow: hidden;
+	position: relative;
+	background: #0f0f12;
+}
+
+.game-row__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+	display: block;
+
+	transform: scale(1.04);
+	transition: transform 180ms ease, filter 180ms ease;
+
+	filter: saturate(1.08) contrast(1.08);
+}
+
+
+.game-row__overlay {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	padding: 16px 16px 14px;
+
+	background: linear-gradient(
+		to top,
+		rgba(0, 0, 0, 0.90),
+		rgba(0, 0, 0, 0.48),
+		rgba(0, 0, 0, 0)
+	);
+}
+
+.game-row__overlayTitle {
+	margin: 0;
+
+	font-family: "Orbitron", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+	font-weight: 700;
+	font-size: 14px;
+	letter-spacing: 0.35px;
+	color: #ffffff;
+
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+
+	-webkit-text-stroke: 0.7px rgba(0, 0, 0, 0.95);
+	text-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.95),
+		0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+
+.game-row__card:hover {
+	transform: translateY(-6px) scale(1.03);
+	border-color: rgba(148, 47, 155, 0.6);
+	z-index: 3;
+}
+
+.game-row__card:hover::before {
+	opacity: 1;
+}
+
+.game-row__card:hover .game-row__img {
+	transform: scale(1.08);
+	filter: saturate(1.12) contrast(1.12);
+}
+
+
+.game-row__arrow {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	border: 1px solid rgba(148, 47, 155, 0.45);
+
+	background: rgba(16, 16, 22, 0.55);
+	backdrop-filter: blur(7px);
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	cursor: pointer;
+	z-index: 4;
+
+	transition: opacity 140ms ease, background 140ms ease, box-shadow 140ms ease;
+	opacity: 0;
+}
+
+
+.game-row__viewport:hover .game-row__arrow:not(:disabled) {
+	opacity: 1;
+}
+
+.game-row__arrow:hover {
+	background: rgba(16, 16, 22, 0.72);
+	box-shadow: 0 0 22px var(--gf-purple-glow);
+}
+
+
+.game-row__arrow:disabled {
+	opacity: 0 !important;
+	pointer-events: none;
+}
+
+.game-row__arrow--left {
+	left: 10px;
+}
+
+.game-row__arrow--right {
+	right: 10px;
+}
+
+.game-row__arrowIcon {
+	font-size: 26px;
+	line-height: 1;
+	color: var(--gf-text);
+	user-select: none;
+	text-shadow: 0 0 10px rgba(148, 47, 155, 0.35);
+}
+
+
+@media (max-width: 740px) {
+	.game-row__card {
+		width: calc((100% - var(--gap)) / 2);
+		min-width: 210px;
+	}
+
+	.game-row__list {
+		padding: 18px 46px 26px 0;
+	}
+}

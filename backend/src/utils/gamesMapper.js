@@ -42,7 +42,7 @@ const mappedGame = (igdbGame) => {
   }
 
   return {
-    gameId: igdbGame.id,
+    id: igdbGame.id,
     name: name,
     rating: rating,
     totalRatingCount: totalRatingCount,
@@ -75,10 +75,18 @@ const mapGameDetail = (igdbGame) => {
 	// We need to confirm is an array because if its not, it gets bugged.
   // When working with external APIs we can't be sure what the response is so is best practices to check the result (Array.isArray)
   const screenshotsUrls = [];
+  const screenshots = [];
   if (igdbGame.screenshots && Array.isArray(igdbGame.screenshots)) {
     igdbGame.screenshots.forEach((screenshot) => {
       if (screenshot.url) {
-        screenshotsUrls.push(buildIgdbImgUrl(screenshot.url));
+        const screenshotUrl = buildIgdbImgUrl(screenshot.url);
+        screenshotsUrls.push(screenshotUrl);
+        screenshots.push({
+          url: screenshotUrl,
+          width: screenshot.width || null,
+          height: screenshot.height || null,
+          alphaChannel: Boolean(screenshot.alpha_channel)
+        });
       }
     });
   }
@@ -117,6 +125,7 @@ const mapGameDetail = (igdbGame) => {
     storyline: storyline,
     firstReleaseDate: firstReleaseDate,
     screenshotsUrls: screenshotsUrls,
+    screenshots: screenshots,
     videoIds: videoIds,
     genres: genres,
     platforms: platforms

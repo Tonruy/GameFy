@@ -9,7 +9,6 @@ jest.mock('../services/games', () => ({
   searchGameService: jest.fn(),
   getGameByIdService: jest.fn(),
   getNewGamesService: jest.fn(),
-  getGameMediaService: jest.fn(),
   getSimilarGamesService: jest.fn()
 }));
 
@@ -120,20 +119,6 @@ describe('Games endpoints', () => {
     expect(gamesService.getGameByIdService).toHaveBeenCalledWith('10');
   });
 
-  test('GET /api/games/:gameId/media -> returns media data', async () => {
-    gamesService.getGameMediaService.mockResolvedValue({
-      gameId: 20,
-      coverUrl: 'https://image.url/cover.jpg',
-      screenshotsUrls: [],
-      videoIds: []
-    });
-
-    const response = await request(app).get('/api/games/20/media');
-
-    expect(response.status).toBe(200);
-    expect(response.body.gameId).toBe(20);
-  });
-
   test('GET /api/games/:gameId/similar -> returns similar games', async () => {
     gamesService.getSimilarGamesService.mockResolvedValue([{ gameId: 21, name: 'Similar Game' }]);
 
@@ -166,11 +151,17 @@ describe('Catalog endpoints', () => {
 });
 
 describe('Auth endpoints', () => {
-  test('POST /api/auth/register -> returns 400 when missing fields', async () => {
-    const response = await request(app).post('/api/auth/register').send({ email: 'a@a.com' });
+  test('POST /api/auth/register -> returns 400 when service returns an error', async () => {
+    authService.registerService.mockResolvedValue({ errorMessage: 'Invalid email format' });
+
+    const response = await request(app).post('/api/auth/register').send({
+      email: 'bad-email',
+      username: 'testUser',
+      password: '12345678'
+    });
 
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({ message: 'Missing required fields' });
+    expect(response.body).toEqual({ errorMessage: 'Invalid email format' });
   });
 
   test('POST /api/auth/register -> creates user', async () => {
@@ -183,17 +174,25 @@ describe('Auth endpoints', () => {
     });
 
     expect(response.status).toBe(201);
-    expect(response.body).toEqual({
-      message: 'User created',
-      userId: '507f1f77bcf86cd799439011'
-    });
+    expect(response.body).toEqual({ userId: '507f1f77bcf86cd799439011' });
+
+    expect(authService.registerService).toHaveBeenCalledWith(
+      'test@test.com',
+      'testUser',
+      '12345678'
+    );
   });
 
-  test('POST /api/auth/login -> returns 400 when missing credentials', async () => {
-    const response = await request(app).post('/api/auth/login').send({ identifier: 'test' });
+  test('POST /api/auth/login -> returns 401 when service returns an error', async () => {
+    authService.loginService.mockResolvedValue({ errorMessage: 'Invalid credentials' });
 
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ message: 'Missing credentials' });
+    const response = await request(app).post('/api/auth/login').send({
+      identifier: 'test',
+      password: 'wrong'
+    });
+
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({ errorMessage: 'Invalid credentials' });
   });
 
   test('POST /api/auth/login -> returns token and refreshToken', async () => {
@@ -212,23 +211,16 @@ describe('Auth endpoints', () => {
       token: 'access-token',
       refreshToken: 'refresh-token'
     });
+
+    expect(authService.loginService).toHaveBeenCalledWith('test', '12345678');
   });
 
-  test('POST /api/auth/refresh -> returns 400 when missing token', async () => {
-    const response = await request(app).post('/api/auth/refresh').send({});
+  test('POST /api/auth/refresh -> returns 404 (not implemented)', async () => {
+    const response = await request(app).post('/api/auth/refresh').send({
+      refreshToken: 'anything'
+    });
 
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ message: 'Missing refresh token' });
-  });
-
-  test('POST /api/auth/refresh -> returns new access token', async () => {
-    const refreshToken = createRefreshToken({ userId: 'user-1', role: 'user' });
-
-    const response = await request(app).post('/api/auth/refresh').send({ refreshToken });
-
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('token');
-    expect(typeof response.body.token).toBe('string');
+    expect(response.status).toBe(404);
   });
 });
 

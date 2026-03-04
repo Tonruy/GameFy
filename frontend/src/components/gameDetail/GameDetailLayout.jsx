@@ -1,0 +1,118 @@
+import { useEffect, useState } from "react";
+import DetailHeroSection from "./DetailHeroSection";
+import TrailerSection from "./TrailerSection";
+import DescriptionSection from "./DescriptionSection";
+import ScreenshotsGallery from "./ScreenshotsGallery";
+import SimilarGamesSection from "./SimilarGamesSection";
+import ImageModalSlider from "../ui/ImageModalSlider/ImageModalSlider";
+import { addFavorite, removeFavorite } from "../../api/usersApi";
+import "./style/gameDetail.css";
+
+const buildHdImageUrl = (url) => {
+	if (!url) {
+		return null;
+	}
+	// Secured hd screenshoots from layout and it is used in both ScreenshotsGallery and Slider
+	// it gives null when the URL is not correct
+	return url.replace("t_thumb", "t_720p").replace("t_screenshot_big", "t_720p");
+};
+
+const GameDetailLayout = ({
+	game,
+	similarGames,
+	authUser,
+	isAuthReady,
+	syncAuthFavorites = () => {},
+	showFeedback = () => {}
+}) => {
+	const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+	const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+	const [isFavorite, setIsFavorite] = useState(false);
+	const [isSubmittingFavorite, setIsSubmittingFavorite] = useState(false);
+	const isLoggedIn = Boolean(authUser);
+	// Filters the null urls from buildHdImageUrl and create a new array without falsy from the array (null, undefined,"")
+	// When buildHdImageUrl => (url, url, null, url, null) . filter(Boolean) => (url,url,url)
+	const hdScreenshots = Array.isArray(game?.screenshotsUrls)
+		? game.screenshotsUrls.map(buildHdImageUrl).filter(Boolean)
+		: [];
+
+	const openImageModal = (index) => {
+		setSelectedImageIndex(index);
+		setIsImageModalOpen(true);
+	};
+
+	const closeImageModal = () => {
+		setIsImageModalOpen(false);
+	};
+
+	useEffect(() => {
+		if (!isLoggedIn || !game?.id) {
+			setIsFavorite(false);
+			return;
+		}
+
+		const favoritesIds = Array.isArray(authUser?.favorites) ? authUser.favorites : [];
+		const gameIsFavorite = favoritesIds.some((favoriteId) => String(favoriteId) === String(game.id));
+		setIsFavorite(gameIsFavorite);
+	}, [isLoggedIn, game?.id, authUser?.favorites]);
+
+	const handleToggleFavorite = async () => {
+		if (!isLoggedIn || !game?.id || isSubmittingFavorite) {
+			return;
+		}
+
+		setIsSubmittingFavorite(true);
+
+		try {
+			if (isFavorite) {
+				await removeFavorite(game.id);
+				setIsFavorite(false);
+				syncAuthFavorites(game.id, false);
+				showFeedback('Game removed from favorites');
+			} else {
+				await addFavorite(game.id);
+				setIsFavorite(true);
+				syncAuthFavorites(game.id, true);
+				showFeedback('Game saved into favorites');
+			}
+		} catch (error) {
+			showFeedback('Could not update favorites', 'danger');
+		} finally {
+			setIsSubmittingFavorite(false);
+		}
+	};
+
+	if (!game) {
+		return null;
+	}
+
+	return (
+		<div className="gd">
+			<div className="gd__card">
+				<DetailHeroSection
+					game={game}
+					isAuthReady={isAuthReady}
+					isLoggedIn={isLoggedIn}
+					isFavorite={isFavorite}
+					onToggleFavorite={handleToggleFavorite}
+					isSubmittingFavorite={isSubmittingFavorite}
+				/>
+				<TrailerSection videoIds={game.videoIds} />
+				<DescriptionSection summary={game.summary} storyline={game.storyline} />
+				<ScreenshotsGallery
+					screenshotsUrls={hdScreenshots}
+					onImageClick={openImageModal}
+				/>
+				<SimilarGamesSection games={similarGames} />
+			</div>
+			<ImageModalSlider
+				isOpen={isImageModalOpen}
+				images={hdScreenshots}
+				initialIndex={selectedImageIndex}
+				onClose={closeImageModal}
+			/>
+		</div>
+	);
+};
+
+export default GameDetailLayout;

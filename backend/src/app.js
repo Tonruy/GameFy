@@ -4,8 +4,14 @@ const gamesRouter = require('./routes/games');
 const catalogRouter = require('./routes/catalog');
 const authRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
+const cors = require('cors');
 
 const app = express();
+
+// Comunication between front and back (CORS)
+app.use(cors({
+  origin: 'http://localhost:5173'
+}));
 
 app.use(express.json());
 

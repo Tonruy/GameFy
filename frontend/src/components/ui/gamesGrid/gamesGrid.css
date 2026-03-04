@@ -1,0 +1,81 @@
+.games-grid {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.games-grid__card {
+	display: block;
+}
+
+.games-grid__coverWrap {
+	position: relative;
+	border-radius: 12px;
+	overflow: hidden;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: #111827;
+}
+
+.games-grid__cover {
+	display: block;
+	width: 100%;
+	aspect-ratio: 3 / 4;
+	object-fit: cover;
+}
+
+.games-grid__cover--placeholder {
+	background:
+		linear-gradient(145deg, rgba(53, 28, 88, 0.8), rgba(14, 20, 37, 0.9));
+}
+
+.games-grid__overlay {
+	position: absolute;
+	inset: auto 0 0 0;
+	padding: 10px;
+	background: linear-gradient(to top, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.08));
+}
+
+.games-grid__title {
+	color: #f5f7ff;
+	font-size: 1rem;
+	font-weight: 600;
+}
+
+.catalog-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+}
+
+.catalog-pagination__button {
+	border: 1px solid var(--app-accent-soft);
+	background: rgba(166, 77, 255, 0.12);
+	color: var(--app-text);
+	border-radius: 999px;
+	padding: 6px 16px;
+	font-family: "Rajdhani", "Segoe UI", sans-serif;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.catalog-pagination__button:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.catalog-pagination__label {
+	color: var(--app-muted);
+}
+
+@media (max-width: 1000px) {
+	.games-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 640px) {
+	.games-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}

@@ -34,31 +34,17 @@ const getGenresService = async () => {
   return genresList;
 };
 
+// IGDB response are too many deprecated platforms so I curated what the modal in frontend must show 
 const getPlatformsService = async () => {
-  const igdbQuery = `
-    fields 
-      name;
-    sort name asc;
-    limit 100;
-  `;
-
-  const platformsResponse = await executeIgdbQuery('platforms', igdbQuery);
-
-  const platformsList = [];
-  if (platformsResponse && Array.isArray(platformsResponse)) {
-    platformsResponse.forEach((platform) => {
-      // Same as games. It can response an platform without an Id or name
-      if (platform.id && platform.name) {
-        platformsList.push({
-          platformId: platform.id,
-          name: platform.name
-        });
-      }
-    });
-  }
-
-  return platformsList;
+  // We need Id for for 
+  return [
+    { platformId: 6, name: 'PC' },
+    { platformId: 167, name: 'PlayStation' }, 
+    { platformId: 169, name: 'Xbox' },        
+    { platformId: 130, name: 'Nintendo' }     
+  ];
 };
+
 
 module.exports = {
   getGenresService,
