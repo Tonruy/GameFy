@@ -1,1 +1,0 @@
-// Instead of src/services is better structured to create a folder api whith all the needed functions to communicate with the backend

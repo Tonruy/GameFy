@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import logoHorizontal from '../assets/logo horizontal.png';
+import logoVertical from '../assets/logo vertical.png';
 import searchIcon from '../assets/search.svg';
 import { getGenres, getPlatforms } from '../api/catalogApi';
 import { searchGames } from '../api/gamesApi';
@@ -9,7 +10,6 @@ import { loginUser } from '../api/authApi';
 import { getMe } from '../api/usersApi';
 import FeedbackModal from '../components/ui/feedbackModal/FeedbackModal';
 
-
 // Layout for diferent pages
 // Header -> common for the pages
 // Main/Outlet -> space where React renders the page
@@ -17,6 +17,8 @@ import FeedbackModal from '../components/ui/feedbackModal/FeedbackModal';
 export default function AppLayout() {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const headerRef = useRef(null);
+	const headerMeasureRef = useRef(null);
 	// Refs to access popup containers in the real DOM for outside-click detection -> click outside modals -> close them
 	const genresRef = useRef(null);
 	const platformsRef = useRef(null);
@@ -30,6 +32,7 @@ export default function AppLayout() {
 	const [isPlatformsActive, setIsPlatformsActive] = useState(false);
 	const [isLoginActive, setIsLoginActive] = useState(false);
 	const [isMenuActive, setIsMenuActive] = useState(false);
+	const [isCompactHeader, setIsCompactHeader] = useState(false);
 	// Catalog lists are preloaded once to avoid loading state on every click
 	const [genresList, setGenresList] = useState([]);
 	const [platformsList, setPlatformsList] = useState([]);
@@ -51,7 +54,6 @@ export default function AppLayout() {
 		type: 'success'
 	});
 
-
 	// Preload both catalogs on mount so popup opening feels instant
 	// Evade fetching everytime we click the button
 	useEffect(() => {
@@ -63,7 +65,7 @@ export default function AppLayout() {
 				]);
 				setGenresList(genresData || []);
 				setPlatformsList(platformsData || []);
-			} catch (error) {
+			} catch {
 				setGenresList([]);
 				setPlatformsList([]);
 			}
@@ -84,7 +86,7 @@ export default function AppLayout() {
 			try {
 				const userData = await getMe();
 				setAuthUser(userData || null);
-			} catch (error) {
+			} catch {
 				localStorage.removeItem('gamefy_access_token');
 				localStorage.removeItem('gamefy_refresh_token');
 				setAuthUser(null);
@@ -113,6 +115,75 @@ export default function AppLayout() {
 			clearTimeout(timer);
 		};
 	}, [feedbackModal.isOpen, feedbackModal.message]);
+
+	const evaluateHeaderMode = useCallback(() => {
+		const headerElement = headerRef.current;
+		const measureElement = headerMeasureRef.current;
+
+		if (!headerElement || !measureElement) {
+			return;
+		}
+
+		const availableWidth = headerElement.clientWidth;
+		const requiredWidth = Math.ceil(measureElement.scrollWidth);
+		const shouldUseCompact = requiredWidth > availableWidth;
+
+		setIsCompactHeader((previousState) => {
+			if (previousState === shouldUseCompact) {
+				return previousState;
+			}
+			return shouldUseCompact;
+		});
+
+		if (!shouldUseCompact) {
+			setIsMenuActive(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		let frameId = null;
+		const scheduleHeaderCheck = () => {
+			if (frameId !== null) {
+				cancelAnimationFrame(frameId);
+			}
+			frameId = requestAnimationFrame(() => {
+				evaluateHeaderMode();
+			});
+		};
+
+		scheduleHeaderCheck();
+		window.addEventListener('resize', scheduleHeaderCheck);
+
+		return () => {
+			if (frameId !== null) {
+				cancelAnimationFrame(frameId);
+			}
+			window.removeEventListener('resize', scheduleHeaderCheck);
+		};
+	}, [evaluateHeaderMode]);
+
+	useLayoutEffect(() => {
+		evaluateHeaderMode();
+	}, [evaluateHeaderMode, authUser?.username]);
+
+	useEffect(() => {
+		let cancelled = false;
+		if (!document.fonts?.ready) {
+			return () => {
+				cancelled = true;
+			};
+		}
+
+		document.fonts.ready.then(() => {
+			if (!cancelled) {
+				evaluateHeaderMode();
+			}
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [evaluateHeaderMode]);
 
 	// Modals useEffect
 	useEffect(() => {
@@ -171,7 +242,7 @@ export default function AppLayout() {
 				if (!isCancelled) {
 					setSuggestions(gamesFound || []);
 				}
-			} catch (error) {
+			} catch {
 				if (!isCancelled) {
 					setSuggestions([]);
 				}
@@ -208,7 +279,6 @@ export default function AppLayout() {
 		setIsPlatformsActive(false);
 		setIsMenuActive(false);
 		setLoginError('');
-
 	};
 
 	const toggleMenu = () => {
@@ -254,7 +324,7 @@ export default function AppLayout() {
 			localStorage.removeItem('gamefy_refresh_token');
 			setAuthUser(null);
 			setIsAuthReady(true);
-			setLoginError(error.message || 'Login failed'); // Always secure two possible errors in case back fails
+			setLoginError(error?.message || 'Login failed'); // Always secure two possible errors in case back fails
 		} finally {
 			setIsSubmittingLogin(false);
 		}
@@ -263,7 +333,7 @@ export default function AppLayout() {
 	const handleLogout = () => {
 		localStorage.removeItem('gamefy_access_token');
 		localStorage.removeItem('gamefy_refresh_token');
-		window.location.reload();
+		window.location.assign('/');
 	};
 
 	const syncAuthFavorites = (gameId, shouldBeFavorite) => {
@@ -292,6 +362,19 @@ export default function AppLayout() {
 		});
 	};
 
+	const syncAuthProfile = (updatedUserData) => {
+		setAuthUser((previousUser) => {
+			if (!previousUser) {
+				return previousUser;
+			}
+
+			return {
+				...previousUser,
+				...updatedUserData
+			};
+		});
+	};
+
 	const showFeedback = (message, type = 'success') => {
 		setFeedbackModal({
 			isOpen: true,
@@ -310,8 +393,6 @@ export default function AppLayout() {
 		setIsGenresActive(false);
 		setIsMenuActive(false);
 	};
-
-
 
 	const handleSelectPlatform = (item) => {
 		navigate(`/platform/${item.platformId}`, {
@@ -336,7 +417,6 @@ export default function AppLayout() {
 
 		setIsSuggestionsOpen(true);
 	};
-
 
 	const handleSearchKeyDown = (event) => {
 		if (event.key !== 'Enter') {
@@ -363,10 +443,39 @@ export default function AppLayout() {
 	};
 
 	return (
-		<div className="app-layout">
-			<header className="app-layout__header">
+		<div className={`app-layout ${isCompactHeader ? 'app-layout--compact' : ''}`}>
+			<header ref={headerRef} className="app-layout__header">
+				<div ref={headerMeasureRef} className="app-layout__headerMeasure" aria-hidden="true">
+					<div className="app-layout__headerMeasureRow">
+						<div className="app-layout__headerMeasureBrandSlot">
+							<img className="app-layout__headerMeasureLogo" src={logoHorizontal} alt="" />
+						</div>
+
+						<div className="app-layout__headerMeasureNav">
+							<span className="app-layout__headerMeasureChip">Home</span>
+							<span className="app-layout__headerMeasureChip">Genres</span>
+							<span className="app-layout__headerMeasureChip">Platforms</span>
+							{authUser ? <span className="app-layout__headerMeasureChip">Favorites</span> : null}
+						</div>
+
+						<div className="app-layout__headerMeasureAuth">
+							<span className="app-layout__headerMeasureSearch">Search games...</span>
+							<span className="app-layout__headerMeasureChip">{authUser ? 'Logout' : 'Login'}</span>
+							{authUser ? (
+								<span className="app-layout__headerMeasureUsername">
+									{authUser.username}
+								</span>
+							) : null}
+						</div>
+					</div>
+				</div>
+
 				<Link to="/" className="header__brand">
-					<img className="header__brandLogo" src={logoHorizontal} alt="GameFy" />
+					<img
+						className="header__brandLogo"
+						src={isCompactHeader ? logoVertical : logoHorizontal}
+						alt="GameFy"
+					/>
 				</Link>
 
 				<div ref={navRef} className={`app-layout__nav ${isMenuActive ? 'app-layout__nav--mobileOpen' : ''}`}>
@@ -443,6 +552,21 @@ export default function AppLayout() {
 							</button>
 						</div>
 					) : null}
+
+					{authUser ? (
+						<div className="app-layout__catalog app-layout__catalog--mobileOnly">
+							<button
+								type="button"
+								className="app-layout__catalogButton app-layout__catalogButton--danger"
+								onClick={() => {
+									setIsMenuActive(false);
+									handleLogout();
+								}}
+							>
+								Logout
+							</button>
+						</div>
+					) : null}
 				</div>
 
 				<div className="app-layout__authArea">
@@ -501,12 +625,22 @@ export default function AppLayout() {
 					<div ref={loginRef} className="app-layout__catalog">
 						<button
 							type="button"
-							className="app-layout__login"
+							className={`app-layout__login ${authUser ? 'app-layout__login--hideOnCompact' : ''}`}
 							onClick={authUser ? handleLogout : toggleLogin}
 						>
 							{authUser ? 'Logout' : 'Login'}
 						</button>
-						{authUser ? <span className="app-layout__authUsername">{authUser.username}</span> : null}
+						{authUser ? (
+							<Link
+								to="/dashboard"
+								className="app-layout__authUsername app-layout__authUsernameLink"
+								onClick={() => {
+									setIsMenuActive(false);
+								}}
+							>
+								{authUser.username}
+							</Link>
+						) : null}
 
 						{isLoginActive && !authUser ? (
 							<div className="app-layout__popup app-layout__popup--login">
@@ -571,7 +705,7 @@ export default function AppLayout() {
 
 			<main className="app-layout__main">
 				<div key={`${location.pathname}${location.search}`} className="route-transition">
-					<Outlet context={{ authUser, isAuthReady, syncAuthFavorites, showFeedback }} />
+					<Outlet context={{ authUser, isAuthReady, syncAuthFavorites, syncAuthProfile, showFeedback }} />
 				</div>
 			</main>
 		</div>
