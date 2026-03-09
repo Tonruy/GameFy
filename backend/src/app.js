@@ -8,9 +8,30 @@ const cors = require('cors');
 
 const app = express();
 
+const defaultAllowedOrigins = [
+  'http://localhost:5173'
+];
+
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
+  : defaultAllowedOrigins;
+
 // Comunication between front and back (CORS)
 app.use(cors({
-  origin: 'http://localhost:5173'
+  origin(origin, callback) {
+    // Allow server-to-server requests and local tools without Origin header.
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error('Origin not allowed by CORS'));
+  }
 }));
 
 app.use(express.json());
