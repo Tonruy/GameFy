@@ -1,4 +1,4 @@
-﻿import { request } from "./httpClient";
+import { request } from "./httpClient.js";
 
 export const getGenres = () => {
 	return request('/api/catalog/genres');

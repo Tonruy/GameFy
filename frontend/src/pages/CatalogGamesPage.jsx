@@ -1,8 +1,8 @@
 import { useLocation, useParams } from 'react-router-dom';
-import { useCatalogGames } from '../hooks/useCatalogGames';
-import { useCatalogPagination } from '../hooks/useCatalogPagination';
-import Spinner from '../components/ui/spinner/Spinner';
-import GamesCatalogLayout from '../components/gamesCatalog/GamesCatalogLayout';
+import { useCatalogGames } from '../hooks/useCatalogGames.js';
+import { useCatalogPagination } from '../hooks/useCatalogPagination.js';
+import Spinner from '../components/ui/spinner/Spinner.jsx';
+import GamesCatalogLayout from '../components/gamesCatalog/GamesCatalogLayout.jsx';
 
 const pageSize = 20;
 

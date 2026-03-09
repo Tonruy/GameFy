@@ -1,4 +1,4 @@
-import GameRow from "../ui/gameRow/GameRow";
+import GameRow from "../ui/gameRow/GameRow.jsx";
 
 const SimilarGamesSection = ({ games }) => {
 	if (!games || games.length === 0) {

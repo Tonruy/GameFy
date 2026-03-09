@@ -2,15 +2,15 @@
 // IMPORT LAYOUT !!
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import AppLayout from '../layouts/AppLayout';
+import AppLayout from '../layouts/AppLayout.jsx';
 
-import HomePage from '../pages/HomePage';
-import RegisterPage from '../pages/RegisterPage';
-import GameDetailPage from '../pages/GameDetailPage';
-import CatalogGamesPage from '../pages/CatalogGamesPage';
-import UserFavoritesPage from '../pages/UserFavoritesPage';
-import UserDashboard from '../pages/UserDashboard';
-import NotFoundPage from '../pages/NotFoundPage';
+import HomePage from '../pages/HomePage.jsx';
+import RegisterPage from '../pages/RegisterPage.jsx';
+import GameDetailPage from '../pages/GameDetailPage.jsx';
+import CatalogGamesPage from '../pages/CatalogGamesPage.jsx';
+import UserFavoritesPage from '../pages/UserFavoritesPage.jsx';
+import UserDashboard from '../pages/UserDashboard.jsx';
+import NotFoundPage from '../pages/NotFoundPage.jsx';
 
 export default function AppRouter() {
 	return (

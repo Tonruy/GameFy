@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import DetailHeroSection from "./DetailHeroSection";
-import TrailerSection from "./TrailerSection";
-import DescriptionSection from "./DescriptionSection";
-import ScreenshotsGallery from "./ScreenshotsGallery";
-import SimilarGamesSection from "./SimilarGamesSection";
-import ImageModalSlider from "../ui/ImageModalSlider/ImageModalSlider";
-import { addFavorite, removeFavorite } from "../../api/usersApi";
+import DetailHeroSection from "./DetailHeroSection.jsx";
+import TrailerSection from "./TrailerSection.jsx";
+import DescriptionSection from "./DescriptionSection.jsx";
+import ScreenshotsGallery from "./ScreenshotsGallery.jsx";
+import SimilarGamesSection from "./SimilarGamesSection.jsx";
+import ImageModalSlider from "../ui/ImageModalSlider/ImageModalSlider.jsx";
+import { addFavorite, removeFavorite } from "../../api/usersApi.js";
 import "./style/gameDetail.css";
 
 const buildHdImageUrl = (url) => {

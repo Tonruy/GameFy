@@ -3,12 +3,12 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import logoHorizontal from '../assets/logo horizontal.png';
 import logoVertical from '../assets/logo vertical.png';
 import searchIcon from '../assets/search.svg';
-import { getGenres, getPlatforms } from '../api/catalogApi';
-import { searchGames } from '../api/gamesApi';
+import { getGenres, getPlatforms } from '../api/catalogApi.js';
+import { searchGames } from '../api/gamesApi.js';
 import './AppLayout.css';
-import { loginUser } from '../api/authApi';
-import { getMe } from '../api/usersApi';
-import FeedbackModal from '../components/ui/feedbackModal/FeedbackModal';
+import { loginUser } from '../api/authApi.js';
+import { getMe } from '../api/usersApi.js';
+import FeedbackModal from '../components/ui/feedbackModal/FeedbackModal.jsx';
 
 // Layout for diferent pages
 // Header -> common for the pages

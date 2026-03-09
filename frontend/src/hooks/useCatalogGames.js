@@ -1,5 +1,5 @@
-﻿import { useEffect, useState } from "react";
-import { getGamesByGenre, getGamesByPlatform } from "../api/gamesApi";
+import { useEffect, useState } from "react";
+import { getGamesByGenre, getGamesByPlatform } from "../api/gamesApi.js";
 
 // Reusable hook depending if mode is genre or platform but the response is the same for both
 export const useCatalogGames = (mode, id) => {

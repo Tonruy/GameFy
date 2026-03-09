@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getMyFavorites } from '../../api/usersApi';
-import Spinner from '../ui/spinner/Spinner';
-import GamesGrid from '../ui/gamesGrid/gamesGrid';
+import { getMyFavorites } from '../../api/usersApi.js';
+import Spinner from '../ui/spinner/Spinner.jsx';
+import GamesGrid from '../ui/gamesGrid/gamesGrid.jsx';
 
 export default function UserFavoritesComponent() {
 	const [favorites, setFavorites] = useState([]);

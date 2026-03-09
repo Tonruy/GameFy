@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDiscoverGames, getIncomingGames, getNewGames, getTopRatedGames, getTrendingGames } from "../api/gamesApi";
+import { getDiscoverGames, getIncomingGames, getNewGames, getTopRatedGames, getTrendingGames } from "../api/gamesApi.js";
 
 export const useHomeData = () => {
   const [trendingGames, setTrendingGames] = useState([]);

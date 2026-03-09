@@ -1,5 +1,5 @@
-﻿import { useEffect, useState } from "react"
-import { getGameById, getSimilarGames } from "../api/gamesApi"
+import { useEffect, useState } from "react"
+import { getGameById, getSimilarGames } from "../api/gamesApi.js"
 
 export const useGameDetail = (gameId) => {
 	const [gameData, setGameData] = useState(null); //Object
