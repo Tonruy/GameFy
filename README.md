@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Discover, search, and track video games with a modern full-stack web application powered by IGDB.</strong>
+  <strong>Discover, search, and track video games with a modern full-stack web application powered by IGDB</strong>
 </p>
 
 <p align="center">
@@ -52,9 +52,43 @@
 
 ## Overview
 
-GameFy is a full-stack web application developed by Antonio Ruiz that allows users to discover trending and upcoming games, explore detailed information, and manage a personal account with favorites and wishlist features.
+GameFy is a full-stack web application developed by Antonio Ruiz that allows users to discover trending and upcoming games, explore detailed information, and manage a personal account with favorites and wishlist features
 
-The project simulates a real product-oriented application combining a responsive frontend, a modular backend architecture, external API integration, authentication, and user-specific functionality.
+The project simulates a real product-oriented application combining a responsive frontend, a modular backend architecture, external API integration, authentication, and user-specific functionality
+
+---
+
+## Architecture
+
+The application follows a modular full-stack architecture separating frontend, backend, and external services
+
+```
+Client (React SPA)
+      │
+      ▼
+Node.js / Express API
+      │
+      ├── MongoDB (user data)
+      │
+      └── IGDB API (game data)
+```
+
+Backend responsibilities include authentication, data transformation from the IGDB API, and user-specific features such as favorites and wishlist management
+
+---
+
+## Deployment
+
+The project is structured to support modern cloud deployment
+
+| Layer | Platform |
+|------|------|
+| Frontend | Netlify |
+| Backend | Node.js / Express |
+| Database | MongoDB Atlas |
+| External API | IGDB (Twitch OAuth) |
+
+Environment variables are required for API credentials and authentication tokens
 
 ---
 
@@ -86,13 +120,13 @@ The project simulates a real product-oriented application combining a responsive
 
 ## Architecture
 
-The backend follows a modular architecture designed to keep responsibilities clearly separated.
+The backend follows a modular architecture designed to keep responsibilities clearly separated
 
 - **Controllers** handle HTTP requests and responses  
 - **Services** contain business logic and API orchestration  
 - **Infrastructure** manages integrations such as Twitch OAuth and IGDB communication  
 
-This structure improves maintainability, scalability, and code clarity.
+This structure improves maintainability, scalability, and code clarity
 
 ---
 
