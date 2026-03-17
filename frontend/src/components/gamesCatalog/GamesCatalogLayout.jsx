@@ -1,4 +1,4 @@
-import GamesGrid from "../ui/gamesGrid/gamesGrid";
+import GamesGrid from "../ui/gamesGrid/gamesGrid.jsx";
 
 const GamesCatalogLayout = ({
 	title,

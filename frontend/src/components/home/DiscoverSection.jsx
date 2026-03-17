@@ -1,4 +1,4 @@
-import GameRow from "../ui/gameRow/GameRow";
+import GameRow from "../ui/gameRow/GameRow.jsx";
 
 const DiscoverSection = ({ games }) => {
 	if (!games || games.length === 0) {

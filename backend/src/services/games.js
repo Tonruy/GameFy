@@ -1,8 +1,6 @@
-// We are going to stablish the data needed in every function and then we execute the Query
 const { executeIgdbQuery } = require('./igdb');
 const { mapGameCard, mapGameDetail } = require('../utils/gamesMapper');
 
-// Image selected -> it has to be HD, high resolution for HERO 
 const buildIgdbImgUrl = (imagePath) => {
   if (!imagePath) {
     return null;
@@ -70,9 +68,8 @@ const selectHeroImageUrl = (igdbGame) => {
 };
 
 const getTrendingGamesService = async () => {
-  const nowUnix = Math.floor(Date.now() / 1000); // 1000 because we need milisecs
-  const oneYearAgoUnix = nowUnix - (60 * 60 * 24 * 365); // seconds in a year
-// Where only can gives one boolean answer so all conditions together with &
+  const nowUnix = Math.floor(Date.now() / 1000);
+  const oneYearAgoUnix = nowUnix - (60 * 60 * 24 * 365);
   const igdbQuery = `
     fields 
       name, 
@@ -96,7 +93,6 @@ const getTrendingGamesService = async () => {
   const igdbGames = await executeIgdbQuery('games', igdbQuery);
 
   const gamesList = [];
-  // Again checking is an array because it is an external API
   if (igdbGames && Array.isArray(igdbGames)) {
     igdbGames.forEach((igdbGame) => {
       const gameCard = mapGameCard(igdbGame);
@@ -113,7 +109,6 @@ const getTrendingGamesService = async () => {
 };
 
 const getIncomingGamesService = async () => {
-  // Incoming: Most hyped upcoming games
   const nowUnix = Math.floor(Date.now() / 1000);
 
   const igdbQuery = `
@@ -144,7 +139,6 @@ const getIncomingGamesService = async () => {
 };
 
 const getTopRatedGamesService = async () => {
-  // Specific where because games re-edited like "The Witcher" appeared 4 times in a row
   const igdbQuery = `
     fields 
       id,
@@ -166,7 +160,6 @@ const getTopRatedGamesService = async () => {
 
   const gamesList = [];
   const uniqueNames = new Set();
-  // Again checking is an array because it is an external API
   if (igdbGames && Array.isArray(igdbGames)) {
     igdbGames.forEach((igdbGame) => {
       const gameCard = mapGameCard(igdbGame);
@@ -203,7 +196,6 @@ const getTopRatedGamesService = async () => {
 };
 
 const getDiscoverGamesService = async () => {
-  // Discover logic: Popular games but ONLY from the last 12 months (avoid old classics dominating the list)
   const oneYearAgoUnix = Math.floor(Date.now() / 1000) - (60 * 60 * 24 * 365);
 
   const igdbQuery = `
@@ -221,7 +213,6 @@ const getDiscoverGamesService = async () => {
   const igdbGames = await executeIgdbQuery('games', igdbQuery);
 
   const gamesList = [];
-  // Again checking is an array because it is an external API
   if (igdbGames && Array.isArray(igdbGames)) {
     igdbGames.forEach((igdbGame) => {
       gamesList.push(mapGameCard(igdbGame));
@@ -231,8 +222,6 @@ const getDiscoverGamesService = async () => {
   return gamesList;
 };
 
-
-// Determinating the fields needed for the game card and not searching by ID, its faster (no fetchs that we don't need)
 const searchGameService = async (searchQuery) => {
   const rawQuery = String(searchQuery || '').trim();
   if (!rawQuery) {
@@ -252,9 +241,8 @@ const searchGameService = async (searchQuery) => {
     igdbGames = [];
   }
 
-  // Fallback: first word if full query returns no results
   if (!igdbGames.length && rawQuery.includes(' ')) {
-    const firstWord = rawQuery.split(/\s+/)[0]; // Separate by spaces and we take the first word for fallback
+    const firstWord = rawQuery.split(/\s+/)[0];
 
     if (firstWord && firstWord.length >= 2) {
       igdbQuery = `
@@ -283,7 +271,6 @@ const searchGameService = async (searchQuery) => {
   return gamesList;
 };
 
-//All the fields we are gonna use in Game Page
 const getGameByIdService = async (gameId) => {
   const igdbQuery = `
     fields
@@ -304,15 +291,12 @@ const getGameByIdService = async (gameId) => {
 
   const igdbGames = await executeIgdbQuery('games', igdbQuery);
 
-  // Important for not error in case the array is empty (In that case, undefined)
   if (!igdbGames || !Array.isArray(igdbGames) || igdbGames.length === 0) {
     return null;
   }
-  // IGDB gives an array with an object, even when the limit is set 1, we need to get the position [0]
   const gameDetail = mapGameDetail(igdbGames[0]);
   return gameDetail;
 };
-
 
 const getNewGamesService = async () => {
   const nowUnix = Math.floor(Date.now() / 1000);
@@ -346,13 +330,11 @@ const getNewGamesService = async () => {
 };
 
 const getSimilarGamesService = async (gameId) => {
-  // gameResponse is an array type Number
   const gameResponse = await executeIgdbQuery('games', `
     fields similar_games;
     where id = ${gameId};
     limit 1;
   `);
-    // Important for not error in case the array is empty
   if (!gameResponse || !Array.isArray(gameResponse) || gameResponse.length === 0) {
     return [];
   }
@@ -363,7 +345,6 @@ const getSimilarGamesService = async (gameId) => {
     return [];
   }
 
-  // IMPORTANT: we need a string, not numbers so we make  join with ',' and converting in array
   const similarGamesQuery = `
     fields 
       name, 
@@ -373,7 +354,6 @@ const getSimilarGamesService = async (gameId) => {
     where id = (${similarGameIds.join(',')}); 
     limit 20;
   `;
-  // We make a second query for obtaining the data of those games
   const igdbGames = await executeIgdbQuery('games', similarGamesQuery);
 
   const gamesList = [];
@@ -387,7 +367,6 @@ const getSimilarGamesService = async (gameId) => {
 };
 
 const getGamesByGenreService = async (genreId) => {
-  //Making sure is a number 
   const parsedGenreId = Number(genreId);
 
   if (!Number.isInteger(parsedGenreId) || parsedGenreId <= 0){

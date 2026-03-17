@@ -1,11 +1,11 @@
-import TrendingSection from "../components/home/TrendingSection";
-import HeroSection from "../components/home/HeroSection";
-import NewReleasesSection from "../components/home/NewReleasesSection";
-import TopRatedSection from "../components/home/TopRatedSection";
-import { useHomeData } from "../hooks/useHomeData";
-import DiscoverSection from "../components/home/DiscoverSection";
-import IncomingSection from "../components/home/IncomingSection";
-import Spinner from "../components/ui/spinner/Spinner";
+import TrendingSection from "../components/home/TrendingSection.jsx";
+import HeroSection from "../components/home/HeroSection.jsx";
+import NewReleasesSection from "../components/home/NewReleasesSection.jsx";
+import TopRatedSection from "../components/home/TopRatedSection.jsx";
+import { useHomeData } from "../hooks/useHomeData.js";
+import DiscoverSection from "../components/home/DiscoverSection.jsx";
+import IncomingSection from "../components/home/IncomingSection.jsx";
+import Spinner from "../components/ui/spinner/Spinner.jsx";
 
 const HomePage = () => {
 

@@ -1,4 +1,4 @@
-import { request } from './httpClient';
+import { request } from './httpClient.js';
 
 export function registerUser(email, username, password) {
 	return request('/api/auth/register', {

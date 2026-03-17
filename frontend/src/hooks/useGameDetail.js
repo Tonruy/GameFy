@@ -1,14 +1,13 @@
-﻿import { useEffect, useState } from "react"
-import { getGameById, getSimilarGames } from "../api/gamesApi"
+import { useEffect, useState } from "react"
+import { getGameById, getSimilarGames } from "../api/gamesApi.js"
 
 export const useGameDetail = (gameId) => {
-	const [gameData, setGameData] = useState(null); //Object
+	const [gameData, setGameData] = useState(null);
 	const [gameSimilars, setGameSimilars] = useState([]);
 	const [errorMessage, setErrorMessage] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		// If theres not gameId it start a loop with isLoading so It has to set everything to stop the loop.
 		if (!gameId) {
 			setGameData(null);
 			setGameSimilars([]);
@@ -19,7 +18,6 @@ export const useGameDetail = (gameId) => {
 
 		const fetchGame = async () => {
 			try {
-				// Reset if the game changes
 				setIsLoading(true);
 				setErrorMessage(null);
 

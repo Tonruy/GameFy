@@ -1,6 +1,6 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser, loginUser } from '../../api/authApi';
+import { registerUser, loginUser } from '../../api/authApi.js';
 import './registerComponent.css';
 
 export default function RegisterComponent() {

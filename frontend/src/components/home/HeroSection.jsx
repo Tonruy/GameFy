@@ -4,11 +4,9 @@ import { Link } from "react-router-dom";
 const HERO_GAMES_COUNT = 8;
 
 const HeroSection = ({ games }) => {
-	// Initial states for games showed in Hero (I dont want the same order than trending)
 	const [order, setOrder] = useState([]);
 	const [position, setPosition] = useState(0);
 
-	// Shuffle Fisher-Yates
 	const shuffle = (array) => {
 		for (let i = array.length - 1; i > 0; i--) {
 			const random = Math.floor(Math.random() * (i + 1));
@@ -18,13 +16,11 @@ const HeroSection = ({ games }) => {
 		return array;
 	};
 
-	//Shuffle order and set position
 	useEffect(() => {
 		if (!games.length) {
 			return;
 		}
 
-		// Array.from(array.like , function(value, index)) -> _ means: don't use the value
 		const indexes = Array.from({ length: games.length }, (_, i) => i);
 		const shuffled = shuffle(indexes);
 		const heroIndexes = shuffled.slice(0, Math.min(HERO_GAMES_COUNT, shuffled.length));
@@ -33,16 +29,14 @@ const HeroSection = ({ games }) => {
 		setPosition(0);
 	}, [games]);
 
-	//Timer 
 	useEffect(() => {
 		if (!order.length) {
 			return;
 		}
 
 		const timer = setInterval(() => {
-			//setState -> saves the initial position (0) and update its with +1 (the next position)
 			setPosition((previousPosition) => {
-				return (previousPosition + 1) % order.length; // When order is 0 it starts again
+				return (previousPosition + 1) % order.length;
 			});
 		}, 6000);
 

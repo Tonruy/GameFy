@@ -1,7 +1,6 @@
-import { request } from "./httpClient";
+import { request } from "./httpClient.js";
 
 export const getTrendingGames = () => {
-	// request is async but the data does not change so we don't need async here. Only if we use the data for any transform (data.slice... example)
 	return request('/api/games/trending')
 };
 
@@ -21,7 +20,6 @@ export const getIncomingGames = () => {
 	return request('/api/games/incoming');
 };
 
-
 export const getGameById = (gameId) => {
 	return request (`/api/games/${gameId}`);
 };
@@ -38,8 +36,5 @@ export const getGamesByPlatform = (platformId) => {
 };
 
 export const searchGames = (searchQuery) => {
-// uriComponent: A string to be encoded as a URI component (a path, query string, fragment, etc.). Other values are converted to strings
-// Need it for spaces, "uncommon" characters( ! ? :  spaces ..) to encoded in UTF-8 
-// Recommended for query params
   return request(`/api/games/search?searchQuery=${encodeURIComponent(searchQuery)}`);
 };

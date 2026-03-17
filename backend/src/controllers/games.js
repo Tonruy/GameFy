@@ -50,8 +50,6 @@ const getDiscoverGames = async (req, res) => {
   }
 }
 
-
-
 const searchGame = async (req, res) => {
   try {
     const searchQuery = req.query.searchQuery;
@@ -115,7 +113,6 @@ const getSimilarGames = async (req, res) => {
 
 const getGamesByGenre = async (req, res) => {
   try {
-    //Even when the service checks the parameter, we need here too because if we don't check here, "antonio" can pass the controller
     const genreId = req.params.genreId;
     const parsedId = Number(genreId);
 
@@ -149,8 +146,6 @@ const getGamesByPlatform = async (req, res) => {
     res.status(500).json({ message: 'Error obtaining games of the platform' });
   }
 }
-
-
 
 module.exports = {
   getTrendingGames,

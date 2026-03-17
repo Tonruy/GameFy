@@ -1,9 +1,6 @@
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
 
-// Need jest.mock for testing the functions without calling MongoDB nor IGDB
-// jest.mock -> erase the real vinculed data from db for just testing if they are functional
-// All are remplaced
 jest.mock('../services/games', () => ({
   getTrendingGamesService: jest.fn(),
   searchGameService: jest.fn(),
@@ -40,7 +37,6 @@ const authService = require('../services/auth');
 const User = require('../models/User');
 const { executeIgdbQuery } = require('../services/igdb');
 
-// When there are 2 querys in a row, (.findById(id).select('password')) makes just one result as value, so it fakes the result (user would be "tester")
 const buildSelectMock = (value) => ({
   select: jest.fn().mockResolvedValue(value)
 });
@@ -53,7 +49,6 @@ const createRefreshToken = (payload = { userId: 'user-1', role: 'user' }) => {
   return jwt.sign(payload, process.env.SECRET_TOKEN_REFRESH, { expiresIn: '60m' });
 };
 
-// Better practices -> not to use the real data from .env
 beforeAll(() => {
   process.env.SECRET_TOKEN = 'test-secret-token';
   process.env.SECRET_TOKEN_REFRESH = 'test-secret-refresh-token';

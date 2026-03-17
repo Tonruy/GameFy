@@ -1,7 +1,7 @@
 import { useOutletContext, useParams } from 'react-router-dom';
-import { useGameDetail } from '../hooks/useGameDetail';
-import GameDetailLayout from '../components/gameDetail/GameDetailLayout';
-import Spinner from "../components/ui/spinner/Spinner";
+import { useGameDetail } from '../hooks/useGameDetail.js';
+import GameDetailLayout from '../components/gameDetail/GameDetailLayout.jsx';
+import Spinner from "../components/ui/spinner/Spinner.jsx";
 
 
 export default function GameDetailPage() {

@@ -8,7 +8,7 @@ const ImageModalSlider = ({ isOpen, images, initialIndex, onClose }) => {
 	const hdImagesLength = hdImages.length;
 
 	useEffect(() => {
-		if (!isOpen) { // Evade secondary effects if it doesn't change
+		if (!isOpen) {
 			return;
 		}
 
@@ -24,15 +24,10 @@ const ImageModalSlider = ({ isOpen, images, initialIndex, onClose }) => {
 
 		setCurrentIndex(initialIndex);
 
-
 	}, [isOpen, initialIndex, hdImagesLength])
 
-	// Handlers next and back (setState for index+/- 1)
-	// useCallback = save in memory for not render new functions with every render
-	// useCallback ( () => function())
 	const goNext = useCallback(() => {
 		setCurrentIndex((prev) => {
-			// If index is null (first render), start in first image
 			if (prev === null) return 0;
 			if (prev === hdImagesLength - 1) return 0;
 			return prev + 1;
@@ -47,17 +42,12 @@ const ImageModalSlider = ({ isOpen, images, initialIndex, onClose }) => {
 		});
 	}, [hdImagesLength]);
 
-	// Key binding for ESC and arrows (cool)
-	// event.key => events for keyboard
-	// window.event is deprecated.
-	// window.add/removeListener => necessary
 	useEffect(() => {
 		if (!isOpen) {
 			return;
 		}
 
 		const handleKeyDown = (e) => {
-			// Use the callback event object instead of deprecated window.event
 			const { key } = e;
 
 			if (key === "Escape") {
@@ -82,9 +72,6 @@ const ImageModalSlider = ({ isOpen, images, initialIndex, onClose }) => {
 		};
 	}, [isOpen, onClose, goNext, goPrev]);
 
-	// document.(element).style.overflow => controls the scroll of the client when modal is open
-	// hidden : Content outside the element box is not shown
-	// auto : Content is clipped and scroll bars are added when necessary
 	useEffect(() => {
 		if (isOpen) {
 			document.body.style.overflow = "hidden";
@@ -97,8 +84,7 @@ const ImageModalSlider = ({ isOpen, images, initialIndex, onClose }) => {
 		};
 	}, [isOpen]);
 
-	// Checks before render
-	if (!isOpen) { // Evade to render
+	if (!isOpen) {
 		return null;
 	}
 
@@ -114,15 +100,14 @@ const ImageModalSlider = ({ isOpen, images, initialIndex, onClose }) => {
 		return null;
 	}
 
-
 	return (
 		<div className="imgs-slider-overlay" onClick={onClose}>
 			<div
 				className="imgs-slider-modal"
-				onClick={(e) => e.stopPropagation()} // Stops an event from bubbling up or capturing down the DOM tree 
+				onClick={(e) => e.stopPropagation()}
 				role="dialog"
-				aria-modal="true" // When de modal is open the client is blocked but the modal opened
-				aria-label="Image slider modal" // Accesibility -> names an element when text showed is not enaugh for understanding what it does
+				aria-modal="true"
+				aria-label="Image slider modal"
 			>
 				<button
 					className="imgs-slider-close-btn"

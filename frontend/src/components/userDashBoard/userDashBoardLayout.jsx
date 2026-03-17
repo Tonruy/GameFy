@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { deleteMyProfile, updateMyProfile } from '../../api/usersApi';
-import Spinner from '../ui/spinner/Spinner';
+import { deleteMyProfile, updateMyProfile } from '../../api/usersApi.js';
+import Spinner from '../ui/spinner/Spinner.jsx';
 import './userDashBoardLayout.css';
 
 export default function UserDashboardLayout() {

@@ -8,28 +8,39 @@ const cors = require('cors');
 
 const app = express();
 
-// Comunication between front and back (CORS)
+const defaultAllowedOrigins = [
+  'http://localhost:5173'
+];
+
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
+  : defaultAllowedOrigins;
+
 app.use(cors({
-  origin: 'http://localhost:5173'
+  origin(origin, callback) {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error('Origin not allowed by CORS'));
+  }
 }));
 
 app.use(express.json());
 
-// Health check
-// It gives 'Ok'  as response if the server is running properly at "http://localhost:3001/health" 
 app.get('/health', (req, res) => {
   res.status(200).json({ ok: true });
 });
 
-// Games routes
 app.use('/api/games', gamesRouter);
-// Catalog (genres,platform)
 app.use('/api/catalog', catalogRouter);
-// Login/Register/Refresh
 app.use('/api/auth', authRouter);
-// User actions
 app.use('/api/users', usersRouter);
-
-
 
 module.exports = app;

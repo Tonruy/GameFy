@@ -1,7 +1,6 @@
 ﻿const jwt = require('jsonwebtoken');
 
 const verifyToken = async (req, res, next) => {
-  // Token must be sent in header "auth-token"
   const token = req.header('auth-token');
 
   if (!token) {

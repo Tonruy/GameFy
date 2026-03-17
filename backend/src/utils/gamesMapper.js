@@ -1,12 +1,3 @@
-// This util transform the data from IGDB in a clean object for using it at frontend -> DRY
-// If we dont check parameters, the query gets bug so we confirm everything exits
-// 3 functions for different responsabilities :
-//	- List View
-//	- Detail View
-// 	- Base data (common data for both views)
-
-
-// Image from IGDB: we need to take off "//" from the url it gives as response
 const buildIgdbImgUrl = (imagePath) => {
 	if(!imagePath) {
 		return null;
@@ -15,13 +6,11 @@ const buildIgdbImgUrl = (imagePath) => {
 	if (imagePath.startsWith('//')) {
 		return 'https:'+imagePath;
 	}
-	return imagePath; //Without // at starts
+	return imagePath;
 }
 
-// Checking if the parameter exists before getting it because sometimes some games don't; cover/rating/total_rating_count. BASE GAME / list view
 const mappedGame = (igdbGame) => {
   let coverUrl = null;
-  // Double check. First just cover, in case it exists we can get url. If we dont, it gives error (undefined) and sometimes there is not cover in the object (Object inside an object)
   if (igdbGame.cover && igdbGame.cover.url) {
     coverUrl = buildIgdbImgUrl(igdbGame.cover.url);
   }
@@ -72,8 +61,6 @@ const mapGameDetail = (igdbGame) => {
     firstReleaseDate = igdbGame.first_release_date;
   }
 
-	// We need to confirm is an array because if its not, it gets bugged.
-  // When working with external APIs we can't be sure what the response is so is best practices to check the result (Array.isArray)
   const screenshotsUrls = [];
   const screenshots = [];
   if (igdbGame.screenshots && Array.isArray(igdbGame.screenshots)) {
@@ -119,8 +106,7 @@ const mapGameDetail = (igdbGame) => {
   }
 
   return {
-		//Parameters for frontend
-    ...baseGame, //Copy of the base data
+    ...baseGame,
     summary: summary,
     storyline: storyline,
     firstReleaseDate: firstReleaseDate,
