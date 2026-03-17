@@ -1,17 +1,8 @@
-// httpClient is the natural name for the api 
-// This is the only archive which uses fetch with the backend
-// HTTP error control
-// Parsed Json
-
-
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-// Without options, the method is GET as default
-// throw Error because every function which use request has set try/catch
 export async function request(endpoint, options = {}) {
 	const token = localStorage.getItem('gamefy_access_token');
 	const method = (options.method || 'GET').toUpperCase();
-	// B.Practices = not changing real options -> create a copy and mutate it
 	const headers = {
 		...(token && { 
 			Authorization: `Bearer ${token}`,
@@ -20,10 +11,9 @@ export async function request(endpoint, options = {}) {
 	};
 
 	if (method !== 'GET' && method !== 'HEAD' && !headers['Content-Type']) {
-		headers['Content-Type'] = 'application/json'; // In case is a GET , it doesn't affect but still makes preflight so with this we don't send unnecesary requests
+		headers['Content-Type'] = 'application/json';
 	
 	}
-	// Copy of options + new header
   const config = {
     ...options,
     headers
@@ -34,7 +24,7 @@ export async function request(endpoint, options = {}) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.errorMessage || data.message || 'Request failed'); // Throw new Error -> stops the execution of the code and create a NEW error (its like a catch)
+    throw new Error(data.errorMessage || data.message || 'Request failed');
   }
   return data;
 }

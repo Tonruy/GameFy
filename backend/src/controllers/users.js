@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const { executeIgdbQuery } = require('../services/igdb');
 
-// Helpers
 const isValidNumericId = (value) => {
   const numericValue = Number(value);
   return Number.isInteger(numericValue) && numericValue > 0;
@@ -32,12 +31,11 @@ const mapGameMiniCard = (igdbGame) => {
   };
 };
 
-// GET /me
 const getMe = async (req, res) => {
   try {
     const payload = req.payload;
 
-    const user = await User.findById(payload.userId).select('-password'); // Everything but password '-password'
+    const user = await User.findById(payload.userId).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -48,7 +46,6 @@ const getMe = async (req, res) => {
   }
 };
 
-// PATCH /me (optional)
 const updateMe = async (req, res) => {
   try {
     const payload = req.payload;
@@ -101,7 +98,6 @@ const updateMe = async (req, res) => {
   }
 };
 
-// DELETE /me
 const deleteMe = async (req, res) => {
   try {
     const payload = req.payload;
@@ -117,7 +113,6 @@ const deleteMe = async (req, res) => {
   }
 };
 
-// GET /:id (admin optional)
 const getUserById = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -137,7 +132,6 @@ const getUserById = async (req, res) => {
   }
 };
 
-// GET / (admin optional list users)
 const getUsersList = async (req, res) => {
   try {
     const users = await User.find().select('-password');
@@ -147,9 +141,6 @@ const getUsersList = async (req, res) => {
   }
 };
 
-// Favorites & Wishlist (mini cards)
-
-// GET /me/favorites
 const getMyFavorites = async (req, res) => {
   try {
     const payload = req.payload;
@@ -189,7 +180,6 @@ const getMyFavorites = async (req, res) => {
   }
 };
 
-// POST /me/favorites/:gameId
 const addFavorite = async (req, res) => {
   try {
     const payload = req.payload;
@@ -221,7 +211,6 @@ const addFavorite = async (req, res) => {
   }
 };
 
-// DELETE /me/favorites/:gameId
 const removeFavorite = async (req, res) => {
   try {
     const payload = req.payload;
@@ -253,7 +242,6 @@ const removeFavorite = async (req, res) => {
   }
 };
 
-// GET /me/wishlist
 const getMyWishlist = async (req, res) => {
   try {
     const payload = req.payload;
@@ -293,7 +281,6 @@ const getMyWishlist = async (req, res) => {
   }
 };
 
-// POST /me/wishlist/:gameId
 const addWishlist = async (req, res) => {
   try {
     const payload = req.payload;
@@ -325,7 +312,6 @@ const addWishlist = async (req, res) => {
   }
 };
 
-// DELETE /me/wishlist/:gameId
 const removeWishlist = async (req, res) => {
   try {
     const payload = req.payload;

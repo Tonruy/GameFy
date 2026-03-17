@@ -13,7 +13,6 @@ export const useHomeData = () => {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        // Promise.all runs every function at the same time -> answer: array of promises
         const [trendingData, incomingData, newGamesData, topRatedData, discoverGames] = await Promise.all([
           getTrendingGames(),
           getIncomingGames(),
@@ -30,7 +29,7 @@ export const useHomeData = () => {
 
       } catch (error) {
         setErrorMessage(error.message);
-      } finally { //UX -> Used for message "Loading..." on screen whatever the answer  is
+      } finally {
         setIsLoading(false);
       }
     };

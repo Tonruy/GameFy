@@ -1,6 +1,3 @@
-// Separating routes from App.jsx -> Best practices and clean.
-// IMPORT LAYOUT !!
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppLayout from '../layouts/AppLayout.jsx';
 

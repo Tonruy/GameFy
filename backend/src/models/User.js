@@ -34,7 +34,6 @@ const userSchema = new mongoose.Schema(
       lastSyncAt: { type: Date, default: null }
     },
 
-    // Favorites and wishlist store IGDB game IDs
     favorites: { type: [Number], default: [] },
     wishlist: { type: [Number], default: [] }
   },

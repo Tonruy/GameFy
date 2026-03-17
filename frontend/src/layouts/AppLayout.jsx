@@ -10,16 +10,11 @@ import { loginUser } from '../api/authApi.js';
 import { getMe } from '../api/usersApi.js';
 import FeedbackModal from '../components/ui/feedbackModal/FeedbackModal.jsx';
 
-// Layout for diferent pages
-// Header -> common for the pages
-// Main/Outlet -> space where React renders the page
-
 export default function AppLayout() {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const headerRef = useRef(null);
 	const headerMeasureRef = useRef(null);
-	// Refs to access popup containers in the real DOM for outside-click detection -> click outside modals -> close them
 	const genresRef = useRef(null);
 	const platformsRef = useRef(null);
 	const navRef = useRef(null);
@@ -27,21 +22,17 @@ export default function AppLayout() {
 	const searchInputRef = useRef(null);
 	const loginRef = useRef(null);
 	const menuRef = useRef(null);
-	// 3 different modals but only 1 could be opened
 	const [isGenresActive, setIsGenresActive] = useState(false);
 	const [isPlatformsActive, setIsPlatformsActive] = useState(false);
 	const [isLoginActive, setIsLoginActive] = useState(false);
 	const [isMenuActive, setIsMenuActive] = useState(false);
 	const [isCompactHeader, setIsCompactHeader] = useState(false);
-	// Catalog lists are preloaded once to avoid loading state on every click
 	const [genresList, setGenresList] = useState([]);
 	const [platformsList, setPlatformsList] = useState([]);
-	// Search states:
 	const [searchGame, setSearchGame] = useState('');
 	const [suggestions, setSuggestions] = useState([]);
 	const [isSearching, setIsSearching] = useState(false);
 	const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
-	// Login states and login submits
 	const [loginIdentifier, setLoginIdentifier] = useState('');
 	const [loginPassword, setLoginPassword] = useState('');
 	const [isSubmittingLogin, setIsSubmittingLogin] = useState(false);
@@ -54,8 +45,6 @@ export default function AppLayout() {
 		type: 'success'
 	});
 
-	// Preload both catalogs on mount so popup opening feels instant
-	// Evade fetching everytime we click the button
 	useEffect(() => {
 		const preloadCatalog = async () => {
 			try {
@@ -185,9 +174,7 @@ export default function AppLayout() {
 		};
 	}, [evaluateHeaderMode]);
 
-	// Modals useEffect
 	useEffect(() => {
-		// Global listener closes both popups when user clicks outside both modals
 		const handleOutsideClick = (event) => {
 			const clickedOutsideGenres = genresRef.current && !genresRef.current.contains(event.target);
 			const clickedOutsidePlatforms = platformsRef.current && !platformsRef.current.contains(event.target);
@@ -222,7 +209,6 @@ export default function AppLayout() {
 		};
 	}, []);
 
-	// Debouncing -> Instead of making a fetch for every character the user writes, it waits 300ms since user stopped for 300 ms
 	useEffect(() => {
 		const normalizedQuery = searchGame.trim();
 
@@ -235,7 +221,6 @@ export default function AppLayout() {
 		let isCancelled = false;
 		setIsSearching(true);
 
-		// Debounce -> suggestions
 		const timer = setTimeout(async () => {
 			try {
 				const gamesFound = await searchGames(normalizedQuery);
@@ -259,10 +244,8 @@ export default function AppLayout() {
 		};
 	}, [searchGame]);
 
-	//Handles and helpers
 	const toggleGenres = () => {
-		// Open/close Genres and always close Platforms to keep one popup at a time
-		setIsGenresActive((previousState) => !previousState); // If it was false, it becomes true
+		setIsGenresActive((previousState) => !previousState);
 		setIsPlatformsActive(false);
 		setIsLoginActive(false);
 	};
@@ -296,21 +279,20 @@ export default function AppLayout() {
 	};
 
 	const handleLoginSubmit = async (event) => {
-		event.preventDefault(); // Evade to recharge the entire client and only makes the fetch of login -> Speed
+		event.preventDefault();
 		setLoginError('');
-		// We are going to use it twice, so its better just one trim
 		const identifier = loginIdentifier.trim();
 		const password = loginPassword.trim()
 
 		if (!identifier || !password) {
-			setLoginError('Email/username and password are\u00A0required') //\u00A0 We cant separate are and required (UX/UI) -> now 
+			setLoginError('Email/username and password are\u00A0required')
 			return;
 		};
 		setIsSubmittingLogin(true);
 
 		try {
 			const response = await loginUser(identifier, password);
-			if (!response?.token || !response?.refreshToken) {  /* ?. = exists? */
+			if (!response?.token || !response?.refreshToken) {
 				setLoginError('Invalid server response');
 				return;
 			}
@@ -324,7 +306,7 @@ export default function AppLayout() {
 			localStorage.removeItem('gamefy_refresh_token');
 			setAuthUser(null);
 			setIsAuthReady(true);
-			setLoginError(error?.message || 'Login failed'); // Always secure two possible errors in case back fails
+			setLoginError(error?.message || 'Login failed');
 		} finally {
 			setIsSubmittingLogin(false);
 		}
@@ -384,7 +366,6 @@ export default function AppLayout() {
 	};
 
 	const handleSelectGenre = (item) => {
-		// Navigate and pass selected name so Catalog page can render a dynamic title
 		navigate(`/genre/${item.genreId}`, {
 			state: {
 				selectedName: item.name
@@ -407,7 +388,6 @@ export default function AppLayout() {
 	const handleSearchGame = (event) => {
 		const value = event.target.value;
 		setSearchGame(value);
-		// No care spaces, min length 2 characters for start suggestions
 		if (value.trim().length < 2) {
 			setSuggestions([]);
 			setIsSuggestionsOpen(false);
